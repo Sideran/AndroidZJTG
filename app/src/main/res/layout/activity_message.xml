@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="2dp">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="left">
+
+    <ImageButton
+        android:id="@+id/back"
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:onClick="onClick"
+        android:src="@drawable/back" />
+</LinearLayout>
+    <include layout="@layout/messagebox"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <ImageButton
+        android:id="@+id/audioPlay"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:onClick="onClick"
+        android:scaleType="fitCenter"
+        android:src="@drawable/play"
+      />
+
+    <ImageButton
+        android:id="@+id/audioNext"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:onClick="onClick"
+        android:scaleType="fitCenter"
+        android:src="@drawable/next"
+ />
+        <TextView
+            android:id="@+id/endTime"
+            style="@style/jmui_chat_text_date_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="截至时间：2021-03-15"
+           />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp"
+        android:gravity="right">
+
+    <Button
+        android:id="@+id/nexttext"
+        style="@style/layout_horizontal"
+        android:layout_marginLeft="30dp"
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="继续学习" />
+
+    <Button
+        android:id="@+id/confirm_button"
+        style="@style/layout_horizontal"
+        android:layout_marginLeft="30dp"
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="完成学习" />
+    </LinearLayout>
+
+</LinearLayout>

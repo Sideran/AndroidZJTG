@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/IV_list_Id"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@color/colorAccent"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="20dp"
+        />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/TV_listTitle_Id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="这是标题"
+            android:textSize="20dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="#ff0000"/>
+        <TextView
+            android:id="@+id/TV_listTime_Id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="2021-8-28"
+            android:textSize="20dp" />
+        <TextView
+            android:id="@+id/TV_listContext_Id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="显示内容"
+            android:textSize="20dp"
+            android:textColor="#ff9900"
+            android:ellipsize="end"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_point"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="right"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/point"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:background="@drawable/red_bg"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"/>
+    </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

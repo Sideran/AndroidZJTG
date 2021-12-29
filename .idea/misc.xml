@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/btn_multi_bg.xml" value="0.2138671875" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/btn_send_bg_disable.xml" value="0.2138671875" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/btn_voice_or_text.xml" value="0.14990234375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/grid_item.xml" value="0.20833333333333334" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.228125" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/jmui_back_btn_bg.xml" value="0.2138671875" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/jmui_msg_receive_bg.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/jmui_msg_send_bg.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable-v24/list_item.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/base_a_little_red_dot.xml" value="0.2138671875" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/bg_round.xml" value="0.14322916666666666" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/ic_launcher_background.xml" value="0.228125" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/switch_track.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/switch_track_off.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/switch_track_on.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/drawable/thunb.xml" value="0.17109375" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_Connect.xml" value="0.35820894502642775" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_connect.xml" value="0.17910447251321387" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_grid_view.xml" value="0.18525641025641026" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_image_view.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_list.xml" value="0.3807296538821328" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_main.xml" value="0.5373134175396416" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_message.xml" value="0.4799999863354132" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_okhttp.xml" value="0.5373134175396416" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_sign.xml" value="0.4799999863354132" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/activity_tab.xml" value="0.1432835780105711" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/fragment_blank1.xml" value="0.12777093596059114" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/fragment_blank2.xml" value="0.12777093596059114" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/item_chat_receive_text.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/item_chat_send_text.xml" value="0.19873046875" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/layout_grid_item.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/layout_list_item.xml" value="0.35820894502642775" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/messagebox.xml" value="0.35820894502642775" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/layout/view_keyboard_xhs.xml" value="0.5234460196292258" />
+        <entry key="..\:/AndroidStudioProjects/DEMO1/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.228125" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.5373134175396416" />
+      </ProjectState>
+    </option>
+  </component>
+</project>

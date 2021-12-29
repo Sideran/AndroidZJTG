@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/messagebox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+
+    <LinearLayout
+        style="@style/layout_horizontal"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/article_title"
+            style="@style/title_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Title" />
+    </LinearLayout>
+        <TextView
+            android:id="@+id/tv_sendtime"
+            style="@style/jmui_chat_text_date_style"
+            android:text="发布时间：2019-02-19 15:59" />
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/receiveMessage"
+                style="@style/text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:text="在上一篇中，我们介绍了使用MediaPlayer配合TextToSpeech实现英文的暂停与播放，实际使用中，中文的场景还是远远大于英文场景的，所以今天我们使用另一套方案实现中文TTS播报的暂停与恢复。这部分内容，目前在网络上是找不到的，里面的一些参数我暂时也不会给出来，如果有需要，可以评论私聊沟通一下。github地址
+        方案主要包括TextToSpeech，科大讯飞语音+即可" />
+        </ScrollView>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
