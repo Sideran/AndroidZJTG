@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
 import java.text.SimpleDateFormat;
@@ -19,11 +20,11 @@ import java.util.Date;
 import java.util.List;
 
 public class ListViewAdapter extends BaseAdapter {
-    private List<ChatMessage> chatMessageList;
+    private List<Article> chatMessageList;
     private Context context;
     private LayoutInflater layoutInflater;
 
-    public ListViewAdapter(Context context,List<ChatMessage> list){
+    public ListViewAdapter(Context context,List<Article> list){
         this.chatMessageList=list;
         this.context=context;
         layoutInflater=LayoutInflater.from(context);
@@ -77,11 +78,11 @@ public class ListViewAdapter extends BaseAdapter {
                 convertView = layoutInflater.inflate( R.layout.layout_list_item, parent,false);
             }
             ViewHolder holder = ViewHolder.getHolder(convertView);
-            ChatMessage chatMessage = chatMessageList.get(position);
-            String content = chatMessage.getContent();
-            String time = chatMessage.getTime();
-            String title = chatMessage.getTitle();
-            int isRead = chatMessage.getIsRead();////是否已读（0未读 1已读）
+            Article chatMessage = chatMessageList.get(position);
+            String content = chatMessage.getArticleContent();
+            String time = chatMessage.getStartTime().toString();
+            String title = chatMessage.getArticleTitle();
+            int isRead = Integer.parseInt(chatMessage.getStatus());////是否已读（0未读 1已读）
             //item固定小红点layout
             LinearLayout pointLayout = holder.mPointLayout;
             //item固定小红点

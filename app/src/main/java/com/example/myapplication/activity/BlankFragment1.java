@@ -13,6 +13,7 @@ import android.widget.ListView;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
 import com.example.myapplication.R;
+import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class BlankFragment1 extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private List<ChatMessage> UchatMessageList;
+    private List<Article> UchatMessageList;
     private Datapp app;
 
     public BlankFragment1() {

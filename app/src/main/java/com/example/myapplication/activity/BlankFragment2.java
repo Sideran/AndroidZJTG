@@ -13,6 +13,7 @@ import android.widget.ListView;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
 import com.example.myapplication.R;
+import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class BlankFragment2 extends Fragment {
     private String mParam1;
     private String mParam2;
     private Datapp app;
-    private List<ChatMessage> chatMessageList;
+    private List<Article> chatMessageList;
     public BlankFragment2() {
         // Required empty public constructor
     }

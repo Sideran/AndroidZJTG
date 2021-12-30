@@ -71,11 +71,11 @@ public class MainActivity extends Activity implements OnInitListener{
         
 //        DBManager.getDbManager().init(this);
 
-//        String str=Util.getJson(context,"message.json");
+        String str=Util.getJson(context,"message.json");
 
         app=(Datapp) getApplication();
-//        app.setUnReadList(JSON.parseArray(str, Article.class));
-        getString();
+        app.setUnReadList(JSON.parseArray(str, Article.class));
+        //getString();
 
     }
     //设置监听

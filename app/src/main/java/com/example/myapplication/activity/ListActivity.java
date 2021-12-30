@@ -16,6 +16,7 @@ import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
 import com.example.myapplication.R;
 
+import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
 
     private ListView listMessage;
-    private List<ChatMessage> UchatMessageList;
+    private List<Article> UchatMessageList;
     private Datapp app;
 
 
