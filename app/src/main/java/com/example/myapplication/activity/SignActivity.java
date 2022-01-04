@@ -1,369 +1,235 @@
 package com.example.myapplication.activity;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.util.AttributeSet;
+import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
-import androidx.annotation.ColorInt;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.huawei.hms.mlsdk.common.MLFrame;
+import com.huawei.hms.mlsdk.text.MLLocalTextSetting;
+import com.huawei.hms.mlsdk.text.MLText;
+import com.huawei.hms.mlsdk.text.MLTextAnalyzer;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import com.example.myapplication.R;
+import com.example.myapplication.util.Util;
 
-public class  SignActivity extends AppCompatActivity {
-//    private Context mContext;
-//
-//    /**
-//     * 笔画X坐标起点
-//     */
-//    private float mX;
-//    /**
-//     * 笔画Y坐标起点
-//     */
-//    private float mY;
-//    /**
-//     * 手写画笔
-//     */
-//    private final Paint mGesturePaint = new Paint();
-//    /**
-//     * 路径
-//     */
-//    private final Path mPath = new Path();
-//    /**
-//     * 签名画笔
-//     */
-//    private Canvas cacheCanvas;
-//    /**
-//     * 签名画布
-//     */
-//    private Bitmap cachebBitmap;
-//    /**
-//     * 是否已经签名
-//     */
-//    private boolean isTouched = false;
-//    /**
-//     * 画笔宽度 px；
-//     */
-//    private int mPaintWidth = 10;
-//    /**
-//     * 前景色
-//     */
-//    private int mPenColor = Color.BLACK;
-//    /**
-//     * 背景色（指最终签名结果文件的背景颜色，默认为透明色）
-//     */
-//    private int mBackColor = Color.TRANSPARENT;
-//
-//    //签名开始与结束
-//    private Touch touch;
-//
-//    public LinePathView(Context context) {
-//        super(context);
-//        init(context);
-//    }
-//
-//    public LinePathView(Context context, AttributeSet attrs) {
-//        super(context, attrs);
-//        init(context);
-//    }
-//
-//    public LinePathView(Context context, AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//        init(context);
-//    }
-//
-//    public onCreate()
-//    public void init(Context context) {
-//        this.mContext = context;
-//        //设置抗锯齿
-//        mGesturePaint.setAntiAlias(true);
-//        //设置签名笔画样式
-//        mGesturePaint.setStyle(Paint.Style.STROKE);
-//        //设置笔画宽度
-//        mGesturePaint.setStrokeWidth(mPaintWidth);
-//        //设置签名颜色
-//        mGesturePaint.setColor(mPenColor);
-//    }
-//
-//    @Override
-//    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//        super.onSizeChanged(w, h, oldw, oldh);
-//        //创建跟view一样大的bitmap，用来保存签名
-//        cachebBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-//        cacheCanvas = new Canvas(cachebBitmap);
-//        cacheCanvas.drawColor(mBackColor);
-//        isTouched = false;
-//    }
-//
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        if (touch != null) touch.OnTouch(true);
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                touchDown(event);
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                isTouched = true;
-//                if (touch != null) touch.OnTouch(false);
-//                touchMove(event);
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                //将路径画到bitmap中，即一次笔画完成才去更新bitmap，而手势轨迹是实时显示在画板上的。
-//                cacheCanvas.drawPath(mPath, mGesturePaint);
-//                mPath.reset();
-//                break;
-//        }
-//        // 更新绘制
-//        invalidate();
-//        return true;
-//    }
-//
-//    @Override
-//    protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-//        //画此次笔画之前的签名
-//        canvas.drawBitmap(cachebBitmap, 0, 0, mGesturePaint);
-//        // 通过画布绘制多点形成的图形
-//        canvas.drawPath(mPath, mGesturePaint);
-//    }
-//
-//    // 手指点下屏幕时调用
-//    private void touchDown(MotionEvent event) {
-//        // 重置绘制路线
-//        mPath.reset();
-//        float x = event.getX();
-//        float y = event.getY();
-//        mX = x;
-//        mY = y;
-//        // mPath绘制的绘制起点
-//        mPath.moveTo(x, y);
-//    }
-//
-//    // 手指在屏幕上滑动时调用
-//    private void touchMove(MotionEvent event) {
-//        final float x = event.getX();
-//        final float y = event.getY();
-//        final float previousX = mX;
-//        final float previousY = mY;
-//        final float dx = Math.abs(x - previousX);
-//        final float dy = Math.abs(y - previousY);
-//        // 两点之间的距离大于等于3时，生成贝塞尔绘制曲线
-//        if (dx >= 3 || dy >= 3) {
-//            // 设置贝塞尔曲线的操作点为起点和终点的一半
-//            float cX = (x + previousX) / 2;
-//            float cY = (y + previousY) / 2;
-//            // 二次贝塞尔，实现平滑曲线；previousX, previousY为操作点，cX, cY为终点
-//            mPath.quadTo(previousX, previousY, cX, cY);
-//            // 第二次执行时，第一次结束调用的坐标值将作为第二次调用的初始坐标值
-//            mX = x;
-//            mY = y;
-//        }
-//    }
-//
-//    /**
-//     * 清除画板
-//     */
-//    public void clear() {
-//        if (cacheCanvas != null) {
-//            isTouched = false;
-//            //更新画板信息
-//            mGesturePaint.setColor(mPenColor);
-//            cacheCanvas.drawColor(mBackColor, PorterDuff.Mode.CLEAR);
-//            mGesturePaint.setColor(mPenColor);
-//            invalidate();
-//        }
-//    }
-//
-//    public interface Touch {
-//        void OnTouch(boolean isTouch);
-//    }
-//
-//    public Touch getTouch() {
-//        return touch;
-//    }
-//
-//    public void setTouch(Touch touch) {
-//        this.touch = touch;
-//    }
-//
-//    /**
-//     * 保存画板
-//     *
-//     * @param path 保存到路径
-//     */
-//    public void save(String path) throws IOException {
-//        save(path, false, 0);
-//    }
-//
-//    /**
-//     * 保存画板
-//     *
-//     * @param path       保存到路径
-//     * @param clearBlank 是否清除边缘空白区域
-//     * @param blank      要保留的边缘空白距离
-//     */
-//    public void save(String path, boolean clearBlank, int blank) throws IOException {
-//
-//        Bitmap bitmap = cachebBitmap;
-//        //BitmapUtil.createScaledBitmapByHeight(srcBitmap, 300);//  压缩图片
-//        if (clearBlank) {
-//            bitmap = clearBlank(bitmap, blank);
-//        }
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-//        byte[] buffer = bos.toByteArray();
-//        if (buffer != null) {
-//            File file = new File(path);
-//            if (file.exists()) {
-//                file.delete();
-//            }
-//            OutputStream outputStream = new FileOutputStream(file);
-//            outputStream.write(buffer);
-//            outputStream.close();
-//        }
-//    }
-//
-//    /**
-//     * 获取画板的bitmap
-//     *
-//     * @return
-//     */
-//    public Bitmap getBitMap() {
-//        setDrawingCacheEnabled(true);
-//        buildDrawingCache();
-//        Bitmap bitmap = getDrawingCache();
-//        setDrawingCacheEnabled(false);
-//        return bitmap;
-//    }
-//
-//    /**
-//     * 逐行扫描 清楚边界空白。
-//     *
-//     * @param bp
-//     * @param blank 边距留多少个像素
-//     * @return
-//     */
-//    private Bitmap clearBlank(Bitmap bp, int blank) {
-//        int HEIGHT = bp.getHeight();
-//        int WIDTH = bp.getWidth();
-//        int top = 0, left = 0, right = 0, bottom = 0;
-//        int[] pixs = new int[WIDTH];
-//        boolean isStop;
-//        //扫描上边距不等于背景颜色的第一个点
-//        for (int y = 0; y < HEIGHT; y++) {
-//            bp.getPixels(pixs, 0, WIDTH, 0, y, WIDTH, 1);
-//            isStop = false;
-//            for (int pix : pixs) {
-//                if (pix != mBackColor) {
-//                    top = y;
-//                    isStop = true;
-//                    break;
-//                }
-//            }
-//            if (isStop) {
-//                break;
-//            }
-//        }
-//        //扫描下边距不等于背景颜色的第一个点
-//        for (int y = HEIGHT - 1; y >= 0; y--) {
-//            bp.getPixels(pixs, 0, WIDTH, 0, y, WIDTH, 1);
-//            isStop = false;
-//            for (int pix : pixs) {
-//                if (pix != mBackColor) {
-//                    bottom = y;
-//                    isStop = true;
-//                    break;
-//                }
-//            }
-//            if (isStop) {
-//                break;
-//            }
-//        }
-//        pixs = new int[HEIGHT];
-//        //扫描左边距不等于背景颜色的第一个点
-//        for (int x = 0; x < WIDTH; x++) {
-//            bp.getPixels(pixs, 0, 1, x, 0, 1, HEIGHT);
-//            isStop = false;
-//            for (int pix : pixs) {
-//                if (pix != mBackColor) {
-//                    left = x;
-//                    isStop = true;
-//                    break;
-//                }
-//            }
-//            if (isStop) {
-//                break;
-//            }
-//        }
-//        //扫描右边距不等于背景颜色的第一个点
-//        for (int x = WIDTH - 1; x > 0; x--) {
-//            bp.getPixels(pixs, 0, 1, x, 0, 1, HEIGHT);
-//            isStop = false;
-//            for (int pix : pixs) {
-//                if (pix != mBackColor) {
-//                    right = x;
-//                    isStop = true;
-//                    break;
-//                }
-//            }
-//            if (isStop) {
-//                break;
-//            }
-//        }
-//        if (blank < 0) {
-//            blank = 0;
-//        }
-//        //计算加上保留空白距离之后的图像大小
-//        left = left - blank > 0 ? left - blank : 0;
-//        top = top - blank > 0 ? top - blank : 0;
-//        right = right + blank > WIDTH - 1 ? WIDTH - 1 : right + blank;
-//        bottom = bottom + blank > HEIGHT - 1 ? HEIGHT - 1 : bottom + blank;
-//        return Bitmap.createBitmap(bp, left, top, right - left, bottom - top);
-//    }
-//
-//    /**
-//     * 设置画笔宽度 默认宽度为10px
-//     *
-//     * @param mPaintWidth
-//     */
-//    public void setPaintWidth(int mPaintWidth) {
-//        mPaintWidth = mPaintWidth > 0 ? mPaintWidth : 10;
-//        this.mPaintWidth = mPaintWidth;
-//        mGesturePaint.setStrokeWidth(mPaintWidth);
-//
-//    }
-//
-//
-//    public void setBackColor(@ColorInt int backColor) {
-//        mBackColor = backColor;
-//    }
-//
-//
-//    /**
-//     * 设置画笔颜色
-//     *
-//     * @param mPenColor
-//     */
-//    public void setPenColor(int mPenColor) {
-//        this.mPenColor = mPenColor;
-//        mGesturePaint.setColor(mPenColor);
-//    }
-//
-//    /**
-//     * 是否有签名
-//     *
-//     * @return
-//     */
-//    public boolean getTouched() {
-//        return isTouched;
-//    }
+public class  SignActivity extends AppCompatActivity  implements View.OnClickListener {
+    private ImageView iv;
+    private Context mContext;
+    private Bitmap bitmap;
+    private Canvas canvas;
+    private static final String TAG = "tag";
+    // 为了不让onItemtSelecter报空指针,所以在这里创建画笔对象
+    private Paint paint = new Paint();
+    TextView textView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign);
+        mContext=SignActivity.this;
+        //textView = (TextView) findViewById(R.id.textView);
+        iv = (ImageView) findViewById(R.id.imageView_hand);
+        //paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.BLUE);
+        //paint.setStrokeWidth(15);
+
+        // 给IV添加触摸监听器
+        iv.setOnTouchListener(new View.OnTouchListener() {
+            private float startX;
+            private float startY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                // switch触摸的action
+                switch (event.getAction()) {
+
+                    // 按下
+                    case MotionEvent.ACTION_DOWN:
+                        // 获取按下去的坐标点
+                        startX = event.getX();
+                        startY = event.getY();
+                        if (bitmap == null) {
+                            // 创建画纸对象 参数1,2:画纸宽高,参数3:画纸质量
+                            bitmap = Bitmap.createBitmap(iv.getWidth(),
+                                    iv.getHeight(), Bitmap.Config.ARGB_8888);
+                            // 创建画板对象
+                            canvas = new Canvas(bitmap);
+                            canvas.drawColor(Color.WHITE);
+                            // 设置画笔粗细
+                            paint.setStrokeWidth(25);
+                            paint.setStrokeCap(Paint.Cap.ROUND);
+                        }
+                        break;
+                    // 移动
+                    case MotionEvent.ACTION_MOVE:
+                        // 获取当前移动到的坐标点
+                        float currentX = event.getX();
+                        float currentY = event.getY();
+                        // 将起始点和当前点连线
+                        canvas.drawLine(startX, startY, currentX, currentY, paint);
+                        // 因为MOVE会多次调用,为了实现连贯效果,绘制完当前直线后将起始点进行重新赋值,把上次的结束点作
+                        // 为起始点准备下一次的绘制
+                        startX = currentX;
+                        startY = currentY;
+                        // 将绘制好的bitmap设置给IV显示
+                        iv.setImageBitmap(bitmap);
+
+                        break;
+                    // 抬起
+                    case MotionEvent.ACTION_UP:
+                        Log.d("tag", "up");
+
+                        break;
+
+                }
+
+                return true;
+            }
+        });
+
+    }
+    public void save(){//} throws IOException {
+        if(bitmap == null) {
+            Toast.makeText(this, "您还没画,不需要保存~!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+        String format = sdf.format(new Date());
+        Util.showToast(mContext, Environment
+                .getExternalStorageDirectory().toString()
+                + "/1/"
+                + format
+                + ".jpg");
+        File file = new File(Environment
+                .getExternalStorageDirectory().toString()
+                + "/1/"
+                + format
+                + ".jpg");
+        // 添加权限<uses-permission
+        // android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        Log.d(TAG, Environment
+                .getExternalStorageDirectory().toString()
+                + "/1/"
+                + format
+                + ".jpg");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+            //Toast.makeText(this, compress ? "成功" : "失败", Toast.LENGTH_SHORT).show();
+            Util.showToast(mContext, compress ? "成功" : "失败");
+            if(compress){
+                // 给相册app发送广播,接收到后会更新图库
+//            Intent intent = new Intent();
+//            intent.setAction(Intent.ACTION_MEDIA_MOUNTED);
+//            intent.setData(Uri.fromFile(file));
+//            sendBroadcast(intent);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void clear() {
+        // 清空画纸
+        bitmap = null;
+        iv.setImageBitmap(bitmap);
+
+    }
+    Bitmap adjustPhotoRotation(Bitmap bm, final int orientationDegree) {
+
+
+        Matrix m = new Matrix();
+        m.setRotate(orientationDegree);
+
+        try {
+            Bitmap bm1 = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), m, true);
+            int w=bm1.getWidth();
+            int h=bm1.getHeight();
+            Bitmap bm0;
+            if (w>h){
+                Log.d(TAG,"w="+w+",h="+h);
+                bm0=Bitmap.createBitmap(w, w+(w-h), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bm0);
+                canvas.drawBitmap(bm1, 0, (w-h), null);
+            }
+            else bm0=bm;
+
+            return bm0;
+
+        } catch (OutOfMemoryError ex) {
+        }
+        return null;
+
+    }
+    private String detectImage(Bitmap bitmap){
+        MLFrame frame = MLFrame.fromBitmap(bitmap);
+        MLTextAnalyzer analyzer = new MLTextAnalyzer.Factory(mContext).setLocalOCRMode(MLLocalTextSetting.OCR_DETECT_MODE).setLanguage("zh").create();
+        SparseArray<MLText.Block> blocks = analyzer.analyseFrame(frame);
+
+        String ss="";
+        for (int i = 0; i < blocks.size(); i++) {
+            List<MLText.TextLine> lines = blocks.get(i).getContents();
+            for (int j = 0; j < lines.size(); j++) {
+                // Display by line, without displaying empty lines.
+                if (lines.get(j).getStringValue() != null && lines.get(j).getStringValue().trim().length() != 0) {
+                    //BaseGraphic textGraphic = new LocalTextGraphic(graphicOverlay,
+                    //        lines.get(j));
+                    //graphicOverlay.addGraphic(textGraphic);
+                    ss=ss+lines.get(j).getStringValue();
+                }
+            }
+        }
+        Log.e(TAG,ss);
+        return ss;
+    }
+    //recognition
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.recognition:
+                String ss=detectImage(adjustPhotoRotation(bitmap,270));
+                String s1=detectImage(bitmap);
+                Util.showToast(mContext,"横屏："+ss+"   竖屏："+s1);
+                //LocalTextTransactor ltt=new LocalTextTransactor(mContext);
+
+                //ltt.detectInImage(adjustPhotoRotation(bitmap,270));
+                //ltt.detectInImage(bitmap);
+                break;
+            case R.id.save:
+                save();
+                break;
+            case R.id.clear:
+                clear();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
 }
 

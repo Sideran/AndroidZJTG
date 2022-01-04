@@ -7,6 +7,9 @@ import android.widget.Toast;
 
 import com.example.myapplication.MainActivity;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +19,45 @@ import java.net.URLConnection;
 
 public class Util {
     public static final String ws = "ws://192.168.43.233:8080/webSocket/TOM";//websocket测试地址
+
+    /**
+     * 去除富文本内容的html标签
+     * @param content
+     * @return
+     */
+    public static String stripHtml(String content) {
+        // <p>段落替换为换行
+        content = content.replaceAll("<p .*?>", "\r\n");
+        // <br><br/>替换为换行
+        content = content.replaceAll("<br\\s*/?>", "\r\n");
+        // 去掉其它的<>之间的东西
+        content = content.replaceAll("\\<.*?>", "");
+
+
+        return content;
+    }
+
+    public static String stripView(String content) {
+
+        Document document = Jsoup.parse(content);
+        content = document.text();
+        // 截取前100位
+        content = content.substring(0, content.length() >= 100 ? 100 : content.length());
+        return content;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static void showToast(Context ctx, String msg) {
         Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show();

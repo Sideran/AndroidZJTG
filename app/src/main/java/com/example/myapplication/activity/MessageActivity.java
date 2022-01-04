@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
 import com.example.myapplication.Datatest.Datapp;
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.im.OriginalTTSManager;
 import com.example.myapplication.im.WhyTTS;
@@ -33,6 +34,8 @@ import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 import com.example.myapplication.util.Util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,9 +72,9 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
 //        chatMessageList= JSON.parseArray(app.getUnReadList(),ChatMessage.class);
         chatMessageList=app.getUnReadList();
         title.setText(chatMessageList.get(i).getArticleTitle());
-        article.setText(chatMessageList.get(i).getArticleContent());
-        time.setText("发布时间："+chatMessageList.get(i).getStartTime());
-        endTime.setText("截止时间："+chatMessageList.get(i).getDeadline());
+        article.setText(Util.stripHtml(chatMessageList.get(i).getArticleContent()));
+        time.setText("发布时间："+formatTime(chatMessageList.get(i).getStartTime()));
+        endTime.setText("截止时间："+formatTime(chatMessageList.get(i).getDeadline()));
         article.setMovementMethod(ScrollingMovementMethod.getInstance());
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener()
         {
@@ -180,6 +183,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.confirm_button:
                 chatMessageList.get(i).setStatus("1");
                 app.setChatMessageList(chatMessageList);
+                intent=new Intent(MessageActivity.this, SignActivity.class);
+                startActivity(intent);
         }
     }
 
@@ -249,6 +254,17 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     public static int getScreenHeight(Context context) {
         return context.getApplicationContext().getResources()
                 .getDisplayMetrics().heightPixels;
+    }
+
+    /**
+     * 将标准日期转为日期格式
+     *
+     * @param date
+     * @return
+     */
+    private String formatTime(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.format(date);
     }
 
 }

@@ -61,7 +61,7 @@ public class BlankFragment2 extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app=(Datapp)getActivity().getApplication();
-        chatMessageList=app.getUnReadList();
+        chatMessageList=app.getReadList();//此处获取未读列表测试，应该为已读列表
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -75,15 +75,17 @@ public class BlankFragment2 extends Fragment {
         View view= inflater.inflate(R.layout.fragment_blank2, container, false);
         Bundle bundle=new Bundle();
         ListView listMessage=view.findViewById(R.id.ReadList);
-        listMessage.setAdapter(new ListViewAdapter(getActivity(),chatMessageList));
-        listMessage.setOnItemClickListener((parent, view0, position, id) -> {
-//            Toast.makeText(getActivity(),"点击位置"+id,Toast.LENGTH_SHORT).show();
+        if(chatMessageList!=null){
+            listMessage.setAdapter(new ListViewAdapter(getActivity(),chatMessageList));
+            listMessage.setOnItemClickListener((parent, view0, position, id) -> {
+    //            Toast.makeText(getActivity(),"点击位置"+id,Toast.LENGTH_SHORT).show();
 
-            bundle.putInt("position",position);
-            Intent intent = new Intent(getActivity(),MessageActivity.class);
-            intent.putExtras(bundle);
-            startActivity(intent);
-        });
+                bundle.putInt("position",position);
+                Intent intent = new Intent(getActivity(),MessageActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            });
+        }
         return  view;
     }
 }

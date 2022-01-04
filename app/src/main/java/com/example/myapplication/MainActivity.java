@@ -1,6 +1,6 @@
 package com.example.myapplication;
 
-import static android.content.ContentValues.TAG;
+
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
@@ -29,6 +30,7 @@ import com.example.myapplication.activity.TabActivity;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 import com.example.myapplication.util.Util;
+import com.google.android.material.tabs.TabLayout;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -43,6 +45,7 @@ import okhttp3.Response;
 
 public class MainActivity extends Activity implements OnInitListener{
 
+    private final String TAG="aaa";
     private Button enter;
     private Context context;
 
@@ -70,12 +73,11 @@ public class MainActivity extends Activity implements OnInitListener{
 
         
 //        DBManager.getDbManager().init(this);
-
-        String str=Util.getJson(context,"message.json");
-
         app=(Datapp) getApplication();
+        String str=Util.getJson(context,"message.json");
         app.setUnReadList(JSON.parseArray(str, Article.class));
-        //getString();
+
+
 
     }
     //设置监听
@@ -86,12 +88,12 @@ public class MainActivity extends Activity implements OnInitListener{
     class ButtonClickListener implements OnClickListener{
         @Override
         public void onClick(View v){
-            Intent intent = null;
+
 
             switch (v.getId()){
                 case R.id.enter:
-                    intent=new Intent(MainActivity.this, TabActivity.class);
-                    startActivity(intent);
+                    getString();
+
                     break;
                 case R.id.signin:
                     break;
@@ -102,9 +104,10 @@ public class MainActivity extends Activity implements OnInitListener{
         }
 
     }
+
     private void getString() {
         //String url = "https://wwww.baidu.com";
-        String url = "http://127.0.0.1:8080/learn/article/list";
+        String url = "http://192.168.31.185:8081/learn/article/userId?userId=1";
         OkHttpClient okHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(url)
@@ -120,26 +123,35 @@ public class MainActivity extends Activity implements OnInitListener{
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Intent intent = null;
                 String text=response.body().string();
-                Log.d(TAG, "onResponse: " + text);
+                Log.e(TAG, "onResponse: " + text);
+                unRead=app.getUnReadList();
+                Read=app.getReadList();
                 try {//Util.decrypt(users)
-                    List<Article> retList=JSON.parseArray(text,Article.class);//.parseArray(users,User.class);
                     JSONObject js= (JSONObject) JSON.parse(text);
+                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
+                    List<Article> retList=ja.toJavaList(Article.class);
 //                    String articleTitle=js.get("articleTitle").toString();
                     for(int i=0;i<retList.size();i++){
-                        if(retList.get(i).getStatus()=="0"){
-                            unRead.add(retList.get(i));
-                        }else if(retList.get(i).getStatus()=="1"){
+                        if(retList.get(i).getStatus()=="1"){
                             Read.add(retList.get(i));
+                        }else {//if(retList.get(i).getStatus()=="0")
+                            unRead.add(retList.get(i));
                         }
 
                     }
-
-
+                    app.setUnReadList(unRead);
+                    app.setReadList(Read);
 //                    Log.e(TAG, "onResponse: " +":" + articleTitle);
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
+
                 }
+                intent=new Intent(MainActivity.this, TabActivity.class);
+                startActivity(intent);
             }
         });
     }

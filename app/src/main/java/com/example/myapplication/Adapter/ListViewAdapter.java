@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
+import com.example.myapplication.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,8 +80,8 @@ public class ListViewAdapter extends BaseAdapter {
             }
             ViewHolder holder = ViewHolder.getHolder(convertView);
             Article chatMessage = chatMessageList.get(position);
-            String content = chatMessage.getArticleContent();
-            String time = chatMessage.getStartTime().toString();
+            String content = Util.stripView(chatMessage.getArticleContent());
+            String time = formatTime(chatMessage.getStartTime());
             String title = chatMessage.getArticleTitle();
             int isRead = Integer.parseInt(chatMessage.getStatus());////是否已读（0未读 1已读）
             //item固定小红点layout
@@ -108,15 +109,13 @@ public class ListViewAdapter extends BaseAdapter {
         }
 
         /**
-         * 将毫秒数转为日期格式
+         * 将标准日期转为日期格式
          *
-         * @param timeMillis
+         * @param date
          * @return
          */
-        private String formatTime(String timeMillis) {
-            long timeMillisl = Long.parseLong(timeMillis);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = new Date(timeMillisl);
+        private String formatTime(Date date) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             return simpleDateFormat.format(date);
         }
     }
