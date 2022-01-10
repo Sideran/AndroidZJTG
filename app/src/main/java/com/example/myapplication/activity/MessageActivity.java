@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.text.Spannable;
@@ -41,14 +42,15 @@ import java.util.Locale;
 
 
 public class MessageActivity extends AppCompatActivity implements View.OnClickListener{
-    private TextView endTime,time,title,article;
+    private TextView endTime,time,title,article,textView;
     private ImageButton audioPlay,audioNext;
     private Button nextText,confirm;
     private LinearLayout linearLayout;
     TextToSpeech tts;
     boolean switchS=true;
     private Datapp app;
-    int i;
+    private final String TAG1="next";
+    int pos;
     private List<Article> chatMessageList;
     private static final String TAG = "TTSManagerWhy";
     private static final long TIMEOUT_MILLS = 1 * 1 * 1000L;
@@ -57,24 +59,25 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     private long startTime=0;
     private int[] span;
     private String[] lines;
+    private static final int LoginInfo = 1;
     private float pxPerWord;
     private  int startWord;
-    Handler handler;
     //@RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         app=(Datapp) getApplication();
         Bundle bundle=getIntent().getExtras();
-        i=bundle.getInt("position");
+        pos=bundle.getInt("position");
         initWight();
 //        chatMessageList= JSON.parseArray(app.getUnReadList(),ChatMessage.class);
         chatMessageList=app.getUnReadList();
-        title.setText(chatMessageList.get(i).getArticleTitle());
-        article.setText(Util.stripHtml(chatMessageList.get(i).getArticleContent()));
-        time.setText("发布时间："+formatTime(chatMessageList.get(i).getStartTime()));
-        endTime.setText("截止时间："+formatTime(chatMessageList.get(i).getDeadline()));
+        title.setText(chatMessageList.get(pos).getArticleTitle());
+        article.setText(Util.stripHtml(chatMessageList.get(pos).getArticleContent()));
+        time.setText("发布时间："+formatTime(chatMessageList.get(pos).getStartTime()));
+        endTime.setText("截止时间："+formatTime(chatMessageList.get(pos).getDeadline()));
         article.setMovementMethod(ScrollingMovementMethod.getInstance());
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener()
         {
@@ -100,31 +103,37 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         });
-        count=0;
-        lines = article.getText().toString().split("。|\\.|？|\\?|！|!|@|···|;|；|:|：|\n|\t|,|，");
+//        count=0;
+//        lines = article.getText().toString().split("。|\\.|？|\\?|！|!|@|···|;|；|:|：|\n|\t|,|，");
+//
+//        if (lines != null && lines.length > 0) {
+//
+//            span = new int[lines.length];
+//            for (int i = 0; i < lines.length; i++) {
+//                Log.e(TAG, "run: " + i + " " + lines[i]);
+//                if (i == 0) {
+//                    span[i] = 0;
+//                } else {
+//                    span[i] = span[i - 1] + lines[i - 1].length() + 1;
+//                }
+//
+//            }
+//
+//        }
+//        pxPerWord=0;
+//        startWord=0;
 
-        if (lines != null && lines.length > 0) {
 
-            span = new int[lines.length];
-            for (int i = 0; i < lines.length; i++) {
-                Log.e(TAG, "run: " + i + " " + lines[i]);
-                if (i == 0) {
-                    span[i] = 0;
-                } else {
-                    span[i] = span[i - 1] + lines[i - 1].length() + 1;
-                }
-
-            }
-
-        }
-        pxPerWord=0;
-        startWord=0;
-
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        GetLines();
 
     }
     private void initWight(){
         int height=getScreenHeight(this);
-
+        textView = findViewById(R.id.receiveMessage);
         article=(TextView) findViewById(R.id.receiveMessage);
         endTime=(TextView) findViewById(R.id.endTime);
         time=(TextView) findViewById(R.id.tv_sendtime);
@@ -138,27 +147,13 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v){
-        TextView textView = findViewById(R.id.receiveMessage);
+
         switch (v.getId()){
             case R.id.back:
                 Intent intent = new Intent(MessageActivity.this,TabActivity.class);
                 startActivity(intent);
             case R.id.audioPlay:
                 if(switchS){
-                    if (count==0) {
-
-                        float total = 0;
-                        int offset = textView.getLineCount() * textView.getLineHeight();
-
-                        if (offset > textView.getHeight()) {
-                            total = (offset - textView.getHeight() * 2 / 3);
-                        }
-                        startWord = textView.getText().toString().length() * textView.getHeight() * 3 / 5 / offset;
-                        pxPerWord = total / (textView.getText().toString().length() - startWord);
-                        Log.e(TAG, "startWord=" + startWord);
-                        Log.e(TAG, "pxPerWord=" + pxPerWord);
-                        textView.scrollTo(0,0);
-                    }
                     startSpeaking();
                     switchS=false;
                 }else {
@@ -172,16 +167,29 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                     switchS=true;
                     count=0;
                     status=1;
-                    title.setText(chatMessageList.get(i++).getArticleTitle());
-                    textView.setText(chatMessageList.get(i++).getArticleContent());
-                    startSpeaking();
+                    pos++;
+                    Log.d(TAG1, "position: " +pos);
+                    String s1=chatMessageList.get(pos).getArticleTitle();
+                    title.setText(s1);
+                    textView.setText(chatMessageList.get(pos).getArticleContent());
+                    GetLines();
+                    new Handler().postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+
+                            startSpeaking();
+                        }
+                    }, 100);    //延时1s执行
+
                     switchS=false;
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }break;
             case R.id.confirm_button:
-                chatMessageList.get(i).setStatus("1");
+                chatMessageList.get(pos).setStatus("1");
+                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
                 app.setChatMessageList(chatMessageList);
                 intent=new Intent(MessageActivity.this, SignActivity.class);
                 startActivity(intent);
@@ -219,6 +227,19 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
     private void startSpeaking() {
         TextView at=findViewById(R.id.receiveMessage);
         String content = at.getText().toString();
+        if(count==0){
+            float total = 0;
+            int offset = textView.getLineCount() * textView.getLineHeight();
+
+            if (offset > textView.getHeight()) {
+                total = (offset - textView.getHeight() * 2 / 3);
+            }
+            startWord = textView.getText().toString().length() * textView.getHeight() * 3 / 5 / offset;
+            pxPerWord = total / (textView.getText().toString().length() - startWord);
+            Log.e(TAG, "startWord=" + startWord);
+            Log.e(TAG, "pxPerWord=" + pxPerWord);
+            textView.scrollTo(0,0);
+        }
         if (count>=lines.length){
             Log.e(TAG, "end: 表示这个内容学完了" );
             count=0;
@@ -230,7 +251,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         SpannableStringBuilder builder = new SpannableStringBuilder(content);
 
         //ForegroundColorSpan 为文字前景色，BackgroundColorSpan为文字背景色
-        ForegroundColorSpan greenSpan = new ForegroundColorSpan(Color.parseColor("#00FFFF"));
+        ForegroundColorSpan greenSpan = new ForegroundColorSpan(Color.parseColor("#0000FF"));
         ForegroundColorSpan buleSpan = new ForegroundColorSpan(Color.parseColor("#4d8ade"));
         ForegroundColorSpan blackSpan = new ForegroundColorSpan(Color.parseColor("#000000"));
         if (count!=0)
@@ -248,6 +269,29 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
             at.scrollTo(0,Math.round((span[count]-startWord)*pxPerWord));
         }
     }
+    public void GetLines(){
+        count=0;
+        lines = article.getText().toString().split("。|\\.|？|\\?|！|!|@|···|;|；|:|：|\n|\t|,|，");
+
+        if (lines != null && lines.length > 0) {
+
+            span = new int[lines.length];
+            for (int i = 0; i < lines.length; i++) {
+                Log.e(TAG, "run: " + i + " " + lines[i]);
+                if (i == 0) {
+                    span[i] = 0;
+                } else {
+                    span[i] = span[i - 1] + lines[i - 1].length() + 1;
+                }
+
+            }
+
+        }
+
+
+
+    }
+
     /**
      * 获取屏幕高度；
      */

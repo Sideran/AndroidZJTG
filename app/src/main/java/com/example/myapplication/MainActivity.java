@@ -14,63 +14,92 @@ import android.os.Build;
 import android.os.Bundle;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
+import com.example.myapplication.activity.GridViewActivity;
 import com.example.myapplication.activity.TabActivity;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
+import com.example.myapplication.modle.LoginBody;
 import com.example.myapplication.util.Util;
 import com.google.android.material.tabs.TabLayout;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends Activity implements OnInitListener{
 
-    private final String TAG="aaa";
-    private Button enter;
-    private Context context;
+    private final String TAG="getArticle";
+    private final String TAG1="Login";
+    private Button enter,signin,login;
+    private ImageButton user1, user2, user3;
 
+    private Context context;
+    private EditText username,pwd;
+
+    private static final int LoginInfo = 1;
     private Datapp app;
     private ListViewAdapter adapter;
-    private List<Article> unRead;
-    private List<Article> Read;
+    private List<Article> unRead,Read ;
 
+
+
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+
+            if(msg.what == LoginInfo ){
+                String data = (String) msg.obj;
+                Toast.makeText(MainActivity.this,data,Toast.LENGTH_SHORT).show();
+            }
+        };
+
+    };
     @Override
     protected void onCreate(Bundle saveInstanceState) {
 
         super.onCreate(saveInstanceState);
         setContentView((R.layout.activity_main));
+        user1=(ImageButton)findViewById(R.id.user1);
+        user2=(ImageButton)findViewById(R.id.user2);
+        user3=(ImageButton)findViewById(R.id.user3);
         enter=(Button)findViewById(R.id.enter);
+        login=(Button)findViewById(R.id.login);
+        signin=(Button)findViewById(R.id.signin);
+        username=(EditText)findViewById(R.id.UserName);
+        pwd=(EditText)findViewById(R.id.Password);
         context=MainActivity.this;
         setlistener();
-//        //启动服务
-//        startJWebSClientService();
-//        //绑定服务
-//        bindService();
-//        //注册广播
-//        doRegisterReceiver();
         //检测通知是否开启
         checkNotification(context);
-
         
 //        DBManager.getDbManager().init(this);
         app=(Datapp) getApplication();
@@ -84,6 +113,11 @@ public class MainActivity extends Activity implements OnInitListener{
     public void setlistener(){
         ButtonClickListener listener=new ButtonClickListener();
         enter.setOnClickListener(listener);
+        login.setOnClickListener(listener);
+        signin.setOnClickListener(listener);
+        user1.setOnClickListener(listener);
+        user2.setOnClickListener(listener);
+        user3.setOnClickListener(listener);
     }
     class ButtonClickListener implements OnClickListener{
         @Override
@@ -92,25 +126,106 @@ public class MainActivity extends Activity implements OnInitListener{
 
             switch (v.getId()){
                 case R.id.enter:
-                    getString();
-
+                case R.id.user1:
+                    login("admin","admin123");
                     break;
                 case R.id.signin:
                     break;
                 case R.id.login:
+//                    Log.d(TAG1,"???");
+                    login(username.getText().toString(),pwd.getText().toString());
                     break;
+                case R.id.user2:
+                    login("ry","admin123");
+                    break;
+                case R.id.user3:
+                    login("sideran","admin123");
 
             }
         }
 
     }
 
+    private void login(String Username,String password){
+        final Intent[] intent = {null};
+        LoginBody user =new LoginBody();
+        user.setUsername(Username);
+        user.setPassword(password);
+        user.setCode("");
+        user.setUuid("");
+        MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
+        String userjs=JSON.toJSONString(user);
+        //userjs = "{\"username\":\"zhangsan\",\"userId\":\"20\"}";
+        RequestBody requestBody = RequestBody.create(mediaType, userjs);
+        Request request = new Request.Builder()
+                .url(app.getURL()+"/login")
+                //.url("https://api.github.com/markdown/raw")
+                //.addHeader("Authorization","Bearer " + "token123")
+                .post(requestBody)
+                .build();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Message message = Message.obtain();
+                Log.d(TAG1, "onFailure: " + e.getMessage());
+                Log.e(TAG1, "onFailure: " + e.getMessage());
+                message.obj = "网络错误";
+                message.what = LoginInfo;
+                handler.sendMessage(message);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG1, response.protocol() + " " +response.code() + " " + response.message());
+                String text=response.body().string();
+                Log.d(TAG1, "onResponse: " + text);
+//                Headers headers = response.headers();
+//                for (int i = 0; i < headers.size(); i++) {
+//                    Log.d(TAG1, headers.name(i) + ":" + headers.value(i));
+//                }
+                Message message = Message.obtain();
+                try{
+                    JSONObject js= (JSONObject) JSON.parse(text);
+
+                    if(js.getInteger("code")==500){
+                        message.obj = "用户名或密码错误";
+                        message.what = LoginInfo;
+                        handler.sendMessage(message);
+                    }else if(js.getInteger("code")==200) {
+                        app.setToken(js.getString("token"));
+                        Log.d(TAG1,"token:"+js.getString("token"));
+                        getString();
+
+//                        intent[0] =new Intent(MainActivity.this, TabActivity.class);
+//                        startActivity(intent[0]);
+
+                    }
+                    else{
+                        message.obj = "未知错误";
+                        message.what = LoginInfo;
+                        handler.sendMessage(message);
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    message.obj = "未知错误";
+                    message.what = LoginInfo;
+                    handler.sendMessage(message);
+                }
+
+            }
+        });
+    }
+
     private void getString() {
         //String url = "https://wwww.baidu.com";
-        String url = "http://192.168.31.185:8081/learn/article/userId?userId=1";
+        String Token=app.getToken();
+        String url = app.getURL()+"/learn/article/userId?userId=1";
         OkHttpClient okHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Authorization","Bearer " + Token)
                 .get()//默认就是GET请求，可以不写
                 .build();
         Call call = okHttpClient.newCall(request);
@@ -126,17 +241,16 @@ public class MainActivity extends Activity implements OnInitListener{
                 Intent intent = null;
                 String text=response.body().string();
                 Log.e(TAG, "onResponse: " + text);
-                unRead=app.getUnReadList();
-                Read=app.getReadList();
+                unRead=new LinkedList<>();
+                Read=new LinkedList<>();
                 try {//Util.decrypt(users)
                     JSONObject js= (JSONObject) JSON.parse(text);
                     JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
                     List<Article> retList=ja.toJavaList(Article.class);
-//                    String articleTitle=js.get("articleTitle").toString();
                     for(int i=0;i<retList.size();i++){
-                        if(retList.get(i).getStatus()=="1"){
+                        if(retList.get(i).getStatus().equals("1")){
                             Read.add(retList.get(i));
-                        }else {//if(retList.get(i).getStatus()=="0")
+                        }else if(retList.get(i).getStatus().equals("0")){
                             unRead.add(retList.get(i));
                         }
 

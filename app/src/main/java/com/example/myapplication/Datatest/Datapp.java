@@ -5,6 +5,7 @@ import android.app.Application;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -16,7 +17,23 @@ public class Datapp extends Application {
     private Article msg;
     private List<Article> chatMessageList;
     private List<Article> ReadList;
+    private String URL,articleId,Token;
 
+    public String getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(String articleId) {
+        this.articleId = articleId;
+    }
+
+    public String getToken() {
+        return Token;
+    }
+
+    public void setToken(String token) {
+        Token = token;
+    }
 
     public List<Article> getRecentReadList() {
         return RecentReadList;
@@ -60,10 +77,24 @@ public class Datapp extends Application {
         this.msg = msg;
     }
 
+    public String getURL() {
+        return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
+        ReadList=new LinkedList<>();
+        UnReadList=new LinkedList<>();
+        RecentReadList = new LinkedList<>();
+        chatMessageList = new LinkedList<>();
+        URL="http://192.168.31.184:8081";
+        Token="";
+        articleId="";
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.myapplication.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,6 +16,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.myapplication.Datatest.Datapp;
 import com.huawei.hms.mlsdk.common.MLFrame;
 import com.huawei.hms.mlsdk.text.MLLocalTextSetting;
 import com.huawei.hms.mlsdk.text.MLText;
@@ -24,17 +27,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import com.example.myapplication.R;
 import com.example.myapplication.util.Util;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class  SignActivity extends AppCompatActivity  implements View.OnClickListener {
     private ImageView iv;
     private Context mContext;
     private Bitmap bitmap;
     private Canvas canvas;
+    private String format;
+    private Datapp app;
     private static final String TAG = "tag";
     // 为了不让onItemtSelecter报空指针,所以在这里创建画笔对象
     private Paint paint = new Paint();
@@ -49,7 +64,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         //paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLUE);
         //paint.setStrokeWidth(15);
-
+        app=(Datapp)getApplication();
         // 给IV添加触摸监听器
         iv.setOnTouchListener(new View.OnTouchListener() {
             private float startX;
@@ -113,7 +128,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        String format = sdf.format(new Date());
+        format = sdf.format(new Date());
         Util.showToast(mContext, Environment
                 .getExternalStorageDirectory().toString()
                 + "/1/"
@@ -137,13 +152,21 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
             boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             //Toast.makeText(this, compress ? "成功" : "失败", Toast.LENGTH_SHORT).show();
-            Util.showToast(mContext, compress ? "成功" : "失败");
+            Util.showToast(mContext, compress ? "保存成功" : "保存失败");
             if(compress){
                 // 给相册app发送广播,接收到后会更新图库
 //            Intent intent = new Intent();
 //            intent.setAction(Intent.ACTION_MEDIA_MOUNTED);
 //            intent.setData(Uri.fromFile(file));
 //            sendBroadcast(intent);
+                try {
+                    upLodeFile();
+                    Intent intent=new Intent(this,TabActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -230,6 +253,63 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         }
     }
 
+    private File file;
+    private void upLodeFile() throws IOException {
+        file = new File(Environment.getExternalStorageDirectory() + "/1/"+format+".jpg");//获取目录（不加后面的字符串是你的根目录+后面是继续找的意思）
+        //getFileLog();
+        //ok上传
+        /**
+         * ok上传文件实例
+         * 由于服务器暂停维护，接口无法访问
+         * 代码就这些
+         */
+        //创建OK
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+        //请求体
+        RequestBody requestBody = RequestBody.create(MediaType.parse("image/png"), file);
+        MultipartBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("articleId", app.getArticleId())                      //post请求Key,value
+                .addFormDataPart("signfile", file.getName(),requestBody)     //post请求Key,value
+                .build();
+        //构建请求
+        Request request = new Request.Builder()
+//                .url("http://yun918.cn/study/public/index.php/file_upload.php")
+                .url(app.getURL()+"/learn/learnuser/sign")
+                .addHeader("Authorization","Bearer " +app.getToken())
+                .post(body)
+                .build();
+        //call对象
+        Call call = okHttpClient.newCall(request);
+        //call执行请求
+        call.enqueue(new Callback() {   //异步
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("tag", "onFailure: "+e.getMessage());
+            }
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String json = response.body().string();
+                Log.d("tag","onResponse:"+json);
+//                final UpLoadBean upLoadBean = new Gson().fromJson(json, UpLoadBean.class);
+//                if (!TextUtils.isEmpty(json)){
+//                    int code = upLoadBean.getCode();
+//                    String str = String.valueOf(code);
+//                    if (str.equals("200")){
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                uploadTv.setText(upLoadBean.getRes());
+//                                Glide.with(MainActivity.this).load(upLoadBean.getData().getUrl()).into(uploadImage);
+//                            }
+//                        });
+//                    }else {
+//                        Toast.makeText(MainActivity.this, "上传失败", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+            }
+        });
+    }
 }
 

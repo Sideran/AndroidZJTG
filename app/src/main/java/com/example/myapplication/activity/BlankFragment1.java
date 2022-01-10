@@ -35,7 +35,7 @@ public class BlankFragment1 extends Fragment {
     private String mParam2;
     private List<Article> UchatMessageList;
     private Datapp app;
-
+    private ListViewAdapter adapter;
     public BlankFragment1() {
         // Required empty public constructor
     }
@@ -77,17 +77,26 @@ public class BlankFragment1 extends Fragment {
         View view=  inflater.inflate(R.layout.fragment_blank1, container, false);
         Bundle bundle=new Bundle();
         ListView listMessage=view.findViewById(R.id.UnReadList);
-        if(UchatMessageList.size()>0){
-            listMessage.setAdapter(new ListViewAdapter(getActivity(),UchatMessageList));
-            listMessage.setOnItemClickListener((parent, view0, position, id) -> {
+        adapter=new ListViewAdapter(getActivity(),UchatMessageList);
+        listMessage.setAdapter(adapter);
+        listMessage.setOnItemClickListener((parent, view0, position, id) -> {
     //            Toast.makeText(getActivity(),"点击位置"+id,Toast.LENGTH_SHORT).show();
+            bundle.putInt("position",position);
+            Intent intent = new Intent(getActivity(),MessageActivity.class);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
 
-                bundle.putInt("position",position);
-                Intent intent = new Intent(getActivity(),MessageActivity.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            });
-        }
         return view;
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        UchatMessageList=app.getUnReadList();
+
+        adapter.notifyDataSetChanged();
+
+    }
+
 }
