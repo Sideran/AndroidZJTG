@@ -128,7 +128,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        format = sdf.format(new Date());
+        format = "signature";//sdf.format(new Date());
         Util.showToast(mContext, Environment
                 .getExternalStorageDirectory().toString()
                 + "/1/"
@@ -149,7 +149,8 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(file);
-            boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
+//            boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            boolean compress = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             //Toast.makeText(this, compress ? "成功" : "失败", Toast.LENGTH_SHORT).show();
             Util.showToast(mContext, compress ? "保存成功" : "保存失败");

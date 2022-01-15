@@ -113,50 +113,7 @@ public class TabActivity extends AppCompatActivity {
             }
         }
     };
-    private void getString() {
-        //String url = "https://wwww.baidu.com";
-        String url = "http://192.168.31.153:8081/learn/article/userId?userId=1";
-        OkHttpClient okHttpClient = new OkHttpClient();
-        final Request request = new Request.Builder()
-                .url(url)
-                .get()//默认就是GET请求，可以不写
-                .build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: "+e.getMessage());
-                Log.e(TAG, "onFailure: "+e.getMessage());
-            }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String text=response.body().string();
-                Log.e(TAG, "onResponse: " + text);
-                unRead=app.getUnReadList();
-                Read=app.getReadList();
-                try {//Util.decrypt(users)
-                    JSONObject js= (JSONObject) JSON.parse(text);
-                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
-                    List<Article> retList=ja.toJavaList(Article.class);
-//                    String articleTitle=js.get("articleTitle").toString();
-                    for(int i=0;i<retList.size();i++){
-                        if(retList.get(i).getStatus()=="0"){
-                            unRead.add(retList.get(i));
-                        }else if(retList.get(i).getStatus()=="1"){
-                            Read.add(retList.get(i));
-                        }
-
-                    }
-                    app.setUnReadList(unRead);
-                    app.setReadList(Read);
-                    Log.d(TAG, "retlist: " +retList);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
     @Override
     protected void onDestroy() {

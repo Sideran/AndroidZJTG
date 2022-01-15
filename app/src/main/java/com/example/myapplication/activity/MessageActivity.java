@@ -37,6 +37,7 @@ import com.example.myapplication.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -103,33 +104,19 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         });
-//        count=0;
-//        lines = article.getText().toString().split("。|\\.|？|\\?|！|!|@|···|;|；|:|：|\n|\t|,|，");
-//
-//        if (lines != null && lines.length > 0) {
-//
-//            span = new int[lines.length];
-//            for (int i = 0; i < lines.length; i++) {
-//                Log.e(TAG, "run: " + i + " " + lines[i]);
-//                if (i == 0) {
-//                    span[i] = 0;
-//                } else {
-//                    span[i] = span[i - 1] + lines[i - 1].length() + 1;
-//                }
-//
-//            }
-//
-//        }
-//        pxPerWord=0;
-//        startWord=0;
 
 
     }
     @Override
-    protected void onStart(){
+    protected void onStart(){//每次重新加载本类时，就重置count、lines、span等值；
         super.onStart();
         GetLines();
 
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        tts.stop();
     }
     private void initWight(){
         int height=getScreenHeight(this);
@@ -145,13 +132,17 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         article.setHeight((int)(height*0.4));
     }
 
+
     @Override
     public void onClick(View v){
 
         switch (v.getId()){
             case R.id.back:
-                Intent intent = new Intent(MessageActivity.this,TabActivity.class);
+                //tts.stop();
+                Intent intent=new Intent(this,TabActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                break;
             case R.id.audioPlay:
                 if(switchS){
                     startSpeaking();
@@ -188,11 +179,16 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                     e.printStackTrace();
                 }break;
             case R.id.confirm_button:
-                chatMessageList.get(pos).setStatus("1");
-                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
-                app.setChatMessageList(chatMessageList);
+                //tts.stop();
+//                chatMessageList.get(pos).setStatus("1");
+//                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
+//                app.setChatMessageList(chatMessageList);
+                HashSet<Article> temp=app.getRecentSet();
+                temp.add(chatMessageList.get(pos));
+                app.setRecentSet(temp);
                 intent=new Intent(MessageActivity.this, SignActivity.class);
                 startActivity(intent);
+                break;
         }
     }
 
@@ -243,6 +239,9 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         if (count>=lines.length){
             Log.e(TAG, "end: 表示这个内容学完了" );
             count=0;
+            HashSet<Article> temp=app.getRecentSet();
+            temp.add(chatMessageList.get(pos));
+            app.setRecentSet(temp);
             return;
         }
         int ends;
