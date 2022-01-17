@@ -37,6 +37,7 @@ import com.example.myapplication.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,7 +76,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
 //        chatMessageList= JSON.parseArray(app.getUnReadList(),ChatMessage.class);
         chatMessageList=app.getUnReadList();
         title.setText(chatMessageList.get(pos).getArticleTitle());
-        article.setText(Util.stripHtml(chatMessageList.get(pos).getArticleContent()));
+        article.setText(Util.stripView(chatMessageList.get(pos).getArticleContent()));
         time.setText("发布时间："+formatTime(chatMessageList.get(pos).getStartTime()));
         endTime.setText("截止时间："+formatTime(chatMessageList.get(pos).getDeadline()));
         article.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -99,37 +100,25 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                     }
                     tts.setSpeechRate(1.0f);
                     tts.setOnUtteranceProgressListener(new ttsUtteranceListener());
-
+                    startSpeaking();
+                    switchS=false;
                 }
             }
         });
-//        count=0;
-//        lines = article.getText().toString().split("。|\\.|？|\\?|！|!|@|···|;|；|:|：|\n|\t|,|，");
-//
-//        if (lines != null && lines.length > 0) {
-//
-//            span = new int[lines.length];
-//            for (int i = 0; i < lines.length; i++) {
-//                Log.e(TAG, "run: " + i + " " + lines[i]);
-//                if (i == 0) {
-//                    span[i] = 0;
-//                } else {
-//                    span[i] = span[i - 1] + lines[i - 1].length() + 1;
-//                }
-//
-//            }
-//
-//        }
-//        pxPerWord=0;
-//        startWord=0;
+
 
 
     }
     @Override
-    protected void onStart(){
+    protected void onStart(){//每次重新加载本类时，就重置count、lines、span等值；
         super.onStart();
         GetLines();
 
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        tts.stop();
     }
     private void initWight(){
         int height=getScreenHeight(this);
@@ -145,13 +134,17 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         article.setHeight((int)(height*0.4));
     }
 
+
     @Override
     public void onClick(View v){
 
         switch (v.getId()){
             case R.id.back:
-                Intent intent = new Intent(MessageActivity.this,TabActivity.class);
+                //tts.stop();
+                Intent intent=new Intent(this,TabActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                break;
             case R.id.audioPlay:
                 if(switchS){
                     startSpeaking();
@@ -162,37 +155,47 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 }break;
             case R.id.audioNext:
             case R.id.nexttext:
-                try {
-                    tts.stop();
-                    switchS=true;
-                    count=0;
-                    status=1;
-                    pos++;
-                    Log.d(TAG1, "position: " +pos);
-                    String s1=chatMessageList.get(pos).getArticleTitle();
-                    title.setText(s1);
-                    textView.setText(chatMessageList.get(pos).getArticleContent());
-                    GetLines();
-                    new Handler().postDelayed(new Runnable() {
-
-                        @Override
-                        public void run() {
-
-                            startSpeaking();
-                        }
-                    }, 100);    //延时1s执行
-
-                    switchS=false;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }break;
+                nextarticle();
+                break;
             case R.id.confirm_button:
-                chatMessageList.get(pos).setStatus("1");
-                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
-                app.setChatMessageList(chatMessageList);
-                intent=new Intent(MessageActivity.this, SignActivity.class);
-                startActivity(intent);
+                //tts.stop();
+//                chatMessageList.get(pos).setStatus("1");
+//                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
+                app.addRecentSet(chatMessageList.get(pos).getArticleId());//正式版应该删除
+                if(app.getRecentSet().size()<=0){
+                    Toast.makeText(MessageActivity.this,"您未学完任何一篇文章",Toast.LENGTH_SHORT).show();
+                }else{
+                    intent=new Intent(MessageActivity.this, SignActivity.class);
+                    startActivity(intent);
+                }
+                break;
+        }
+    }
+    private void nextarticle(){
+        try {
+            tts.stop();
+            switchS=true;
+            count=0;
+            status=1;
+            pos++;
+            Log.d(TAG1, "position: " +pos);
+            String s1=chatMessageList.get(pos).getArticleTitle();
+            title.setText(s1);
+            textView.setText(chatMessageList.get(pos).getArticleContent());
+            GetLines();
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    startSpeaking();
+                }
+            }, 100);    //延时1s执行
+
+            switchS=false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -243,6 +246,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         if (count>=lines.length){
             Log.e(TAG, "end: 表示这个内容学完了" );
             count=0;
+            app.addRecentSet(chatMessageList.get(pos).getArticleId());
+            nextarticle();
             return;
         }
         int ends;

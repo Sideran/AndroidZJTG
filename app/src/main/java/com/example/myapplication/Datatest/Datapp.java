@@ -5,6 +5,7 @@ import android.app.Application;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +19,20 @@ public class Datapp extends Application {
     private List<Article> chatMessageList;
     private List<Article> ReadList;
     private String URL,articleId,Token;
+    private HashSet<Long> RecentSet;
+
+    public HashSet<Long> getRecentSet() {
+        return RecentSet;
+    }
+
+    public void setRecentSet(HashSet<Long> recentSet) {
+        RecentSet = recentSet;
+    }
+
+    public void clearRecentSet(){
+        HashSet<Long> recset=new HashSet<>();
+        this.setRecentSet(recset);
+    }
 
     public String getArticleId() {
         return articleId;
@@ -59,6 +74,9 @@ public class Datapp extends Application {
         UnReadList = unReadList;
     }
 
+    public void addRecentSet(Long articleId){
+        RecentSet.add(articleId);
+    }
 
 
     public List<Article> getChatMessageList() {
@@ -92,6 +110,7 @@ public class Datapp extends Application {
         UnReadList=new LinkedList<>();
         RecentReadList = new LinkedList<>();
         chatMessageList = new LinkedList<>();
+        RecentSet= new HashSet<>();
         URL="http://192.168.31.184:8081";
         Token="";
         articleId="";

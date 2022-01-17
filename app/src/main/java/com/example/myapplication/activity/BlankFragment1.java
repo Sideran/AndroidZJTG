@@ -5,18 +5,31 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,9 +44,10 @@ public class BlankFragment1 extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
+    private final String TAG="getArticle";
     private String mParam1;
     private String mParam2;
-    private List<Article> UchatMessageList;
+    private List<Article> UchatMessageList,unRead,Read;
     private Datapp app;
     private ListViewAdapter adapter;
     public BlankFragment1() {
@@ -93,10 +107,62 @@ public class BlankFragment1 extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        UchatMessageList=app.getUnReadList();
+        getString();
 
-        adapter.notifyDataSetChanged();
 
+
+
+    }
+    private void getString() {
+        //String url = "https://wwww.baidu.com";
+        String Token=app.getToken();
+        String url = app.getURL()+"/learn/article/userId?userId=1";
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization","Bearer " + Token)
+                .get()//默认就是GET请求，可以不写
+                .build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "onFailure: "+e.getMessage());
+                Log.e(TAG, "onFailure: "+e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Intent intent = null;
+                String text=response.body().string();
+                Log.e(TAG, "onResponse: " + text);
+                unRead=new LinkedList<>();
+                Read=new LinkedList<>();
+                try {//Util.decrypt(users)
+                    JSONObject js= (JSONObject) JSON.parse(text);
+                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
+                    List<Article> retList=ja.toJavaList(Article.class);
+                    for(int i=0;i<retList.size();i++){
+                        if(retList.get(i).getStatus().equals("1")){
+                            Read.add(retList.get(i));
+                        }else if(retList.get(i).getStatus().equals("0")){
+                            unRead.add(retList.get(i));
+                        }
+
+                    }
+                    app.setUnReadList(unRead);
+                    app.setReadList(Read);
+//                    Log.e(TAG, "onResponse: " +":" + articleTitle);
+
+                    UchatMessageList=app.getUnReadList();
+                    adapter.notifyDataSetChanged();
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                }
+
+            }
+        });
     }
 
 }

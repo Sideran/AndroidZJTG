@@ -33,6 +33,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
 import com.example.myapplication.activity.GridViewActivity;
+import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.TabActivity;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
@@ -59,7 +60,7 @@ public class MainActivity extends Activity implements OnInitListener{
 
     private final String TAG="getArticle";
     private final String TAG1="Login";
-    private Button enter,signin,login;
+    private Button login;
     private ImageButton user1, user2, user3;
 
     private Context context;
@@ -91,11 +92,10 @@ public class MainActivity extends Activity implements OnInitListener{
         user1=(ImageButton)findViewById(R.id.user1);
         user2=(ImageButton)findViewById(R.id.user2);
         user3=(ImageButton)findViewById(R.id.user3);
-        enter=(Button)findViewById(R.id.enter);
         login=(Button)findViewById(R.id.login);
-        signin=(Button)findViewById(R.id.signin);
-        username=(EditText)findViewById(R.id.UserName);
-        pwd=(EditText)findViewById(R.id.Password);
+//        signin=(Button)findViewById(R.id.signin);
+//        username=(EditText)findViewById(R.id.UserName);
+//        pwd=(EditText)findViewById(R.id.Password);
         context=MainActivity.this;
         setlistener();
         //检测通知是否开启
@@ -112,9 +112,8 @@ public class MainActivity extends Activity implements OnInitListener{
     //设置监听
     public void setlistener(){
         ButtonClickListener listener=new ButtonClickListener();
-        enter.setOnClickListener(listener);
         login.setOnClickListener(listener);
-        signin.setOnClickListener(listener);
+//        signin.setOnClickListener(listener);
         user1.setOnClickListener(listener);
         user2.setOnClickListener(listener);
         user3.setOnClickListener(listener);
@@ -125,15 +124,17 @@ public class MainActivity extends Activity implements OnInitListener{
 
 
             switch (v.getId()){
-                case R.id.enter:
+
                 case R.id.user1:
                     login("admin","admin123");
                     break;
-                case R.id.signin:
-                    break;
+//                case R.id.signin:
+//                    break;
                 case R.id.login:
 //                    Log.d(TAG1,"???");
-                    login(username.getText().toString(),pwd.getText().toString());
+                    Intent intent = null;
+                    intent=new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.user2:
                     login("ry","admin123");

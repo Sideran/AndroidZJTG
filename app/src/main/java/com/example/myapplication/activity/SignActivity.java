@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import com.example.myapplication.R;
 import com.example.myapplication.util.Util;
@@ -128,7 +129,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        format = sdf.format(new Date());
+        format = "signature";//sdf.format(new Date());
         Util.showToast(mContext, Environment
                 .getExternalStorageDirectory().toString()
                 + "/1/"
@@ -149,7 +150,8 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(file);
-            boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
+//            boolean compress = adjustPhotoRotation(bitmap,270).compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            boolean compress = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             //Toast.makeText(this, compress ? "成功" : "失败", Toast.LENGTH_SHORT).show();
             Util.showToast(mContext, compress ? "保存成功" : "保存失败");
@@ -258,6 +260,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         file = new File(Environment.getExternalStorageDirectory() + "/1/"+format+".jpg");//获取目录（不加后面的字符串是你的根目录+后面是继续找的意思）
         //getFileLog();
         //ok上传
+        String str=app.getRecentSet().toString();
         /**
          * ok上传文件实例
          * 由于服务器暂停维护，接口无法访问
@@ -269,7 +272,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         RequestBody requestBody = RequestBody.create(MediaType.parse("image/png"), file);
         MultipartBody body = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("articleId", app.getArticleId())                      //post请求Key,value
+                .addFormDataPart("articleIds", str)                //post请求Key,value
                 .addFormDataPart("signfile", file.getName(),requestBody)     //post请求Key,value
                 .build();
         //构建请求
@@ -292,6 +295,7 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
             public void onResponse(Call call, Response response) throws IOException {
                 String json = response.body().string();
                 Log.d("tag","onResponse:"+json);
+                app.clearRecentSet();
 //                final UpLoadBean upLoadBean = new Gson().fromJson(json, UpLoadBean.class);
 //                if (!TextUtils.isEmpty(json)){
 //                    int code = upLoadBean.getCode();
