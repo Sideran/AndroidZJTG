@@ -26,6 +26,10 @@
             android:name=".activity.TabActivity"
             android:exported="true"
             android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".activity.MessageActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

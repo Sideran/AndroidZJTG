@@ -19,14 +19,19 @@ public class Datapp extends Application {
     private List<Article> chatMessageList;
     private List<Article> ReadList;
     private String URL,articleId,Token;
-    private HashSet<Article> RecentSet;
+    private HashSet<Long> RecentSet;
 
-    public HashSet<Article> getRecentSet() {
+    public HashSet<Long> getRecentSet() {
         return RecentSet;
     }
 
-    public void setRecentSet(HashSet<Article> recentSet) {
+    public void setRecentSet(HashSet<Long> recentSet) {
         RecentSet = recentSet;
+    }
+
+    public void clearRecentSet(){
+        HashSet<Long> recset=new HashSet<>();
+        this.setRecentSet(recset);
     }
 
     public String getArticleId() {
@@ -69,6 +74,9 @@ public class Datapp extends Application {
         UnReadList = unReadList;
     }
 
+    public void addRecentSet(Long articleId){
+        RecentSet.add(articleId);
+    }
 
 
     public List<Article> getChatMessageList() {

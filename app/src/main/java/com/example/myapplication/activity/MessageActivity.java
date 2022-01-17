@@ -76,7 +76,7 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
 //        chatMessageList= JSON.parseArray(app.getUnReadList(),ChatMessage.class);
         chatMessageList=app.getUnReadList();
         title.setText(chatMessageList.get(pos).getArticleTitle());
-        article.setText(Util.stripHtml(chatMessageList.get(pos).getArticleContent()));
+        article.setText(Util.stripView(chatMessageList.get(pos).getArticleContent()));
         time.setText("发布时间："+formatTime(chatMessageList.get(pos).getStartTime()));
         endTime.setText("截止时间："+formatTime(chatMessageList.get(pos).getDeadline()));
         article.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -100,10 +100,12 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                     }
                     tts.setSpeechRate(1.0f);
                     tts.setOnUtteranceProgressListener(new ttsUtteranceListener());
-
+                    startSpeaking();
+                    switchS=false;
                 }
             }
         });
+
 
 
     }
@@ -153,42 +155,47 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 }break;
             case R.id.audioNext:
             case R.id.nexttext:
-                try {
-                    tts.stop();
-                    switchS=true;
-                    count=0;
-                    status=1;
-                    pos++;
-                    Log.d(TAG1, "position: " +pos);
-                    String s1=chatMessageList.get(pos).getArticleTitle();
-                    title.setText(s1);
-                    textView.setText(chatMessageList.get(pos).getArticleContent());
-                    GetLines();
-                    new Handler().postDelayed(new Runnable() {
-
-                        @Override
-                        public void run() {
-
-                            startSpeaking();
-                        }
-                    }, 100);    //延时1s执行
-
-                    switchS=false;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }break;
+                nextarticle();
+                break;
             case R.id.confirm_button:
                 //tts.stop();
 //                chatMessageList.get(pos).setStatus("1");
 //                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
-//                app.setChatMessageList(chatMessageList);
-                HashSet<Article> temp=app.getRecentSet();
-                temp.add(chatMessageList.get(pos));
-                app.setRecentSet(temp);
-                intent=new Intent(MessageActivity.this, SignActivity.class);
-                startActivity(intent);
+                app.addRecentSet(chatMessageList.get(pos).getArticleId());//正式版应该删除
+                if(app.getRecentSet().size()<=0){
+                    Toast.makeText(MessageActivity.this,"您未学完任何一篇文章",Toast.LENGTH_SHORT).show();
+                }else{
+                    intent=new Intent(MessageActivity.this, SignActivity.class);
+                    startActivity(intent);
+                }
                 break;
+        }
+    }
+    private void nextarticle(){
+        try {
+            tts.stop();
+            switchS=true;
+            count=0;
+            status=1;
+            pos++;
+            Log.d(TAG1, "position: " +pos);
+            String s1=chatMessageList.get(pos).getArticleTitle();
+            title.setText(s1);
+            textView.setText(chatMessageList.get(pos).getArticleContent());
+            GetLines();
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    startSpeaking();
+                }
+            }, 100);    //延时1s执行
+
+            switchS=false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -239,9 +246,8 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         if (count>=lines.length){
             Log.e(TAG, "end: 表示这个内容学完了" );
             count=0;
-            HashSet<Article> temp=app.getRecentSet();
-            temp.add(chatMessageList.get(pos));
-            app.setRecentSet(temp);
+            app.addRecentSet(chatMessageList.get(pos).getArticleId());
+            nextarticle();
             return;
         }
         int ends;
