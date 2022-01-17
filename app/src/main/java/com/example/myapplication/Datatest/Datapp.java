@@ -100,7 +100,7 @@ public class Datapp extends Application {
     }
 
     public void setURL(String URL) {
-        this.URL = URL;
+        this.URL = "http://"+URL+":8081";
     }
 
     @Override

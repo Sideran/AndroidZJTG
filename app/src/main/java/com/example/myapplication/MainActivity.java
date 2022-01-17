@@ -61,7 +61,7 @@ public class MainActivity extends Activity implements OnInitListener{
     private final String TAG="getArticle";
     private final String TAG1="Login";
     private Button login;
-    private ImageButton user1, user2, user3;
+    private ImageButton user1, user2, user3,settingURL;
 
     private Context context;
     private EditText username,pwd;
@@ -92,6 +92,7 @@ public class MainActivity extends Activity implements OnInitListener{
         user1=(ImageButton)findViewById(R.id.user1);
         user2=(ImageButton)findViewById(R.id.user2);
         user3=(ImageButton)findViewById(R.id.user3);
+        settingURL=(ImageButton)findViewById(R.id.settingURL);
         login=(Button)findViewById(R.id.login);
 //        signin=(Button)findViewById(R.id.signin);
 //        username=(EditText)findViewById(R.id.UserName);
@@ -105,7 +106,12 @@ public class MainActivity extends Activity implements OnInitListener{
         app=(Datapp) getApplication();
         String str=Util.getJson(context,"message.json");
         app.setUnReadList(JSON.parseArray(str, Article.class));
-
+        settingURL.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                changeURL(v);
+            }
+        });
 
 
     }
@@ -117,6 +123,7 @@ public class MainActivity extends Activity implements OnInitListener{
         user1.setOnClickListener(listener);
         user2.setOnClickListener(listener);
         user3.setOnClickListener(listener);
+
     }
     class ButtonClickListener implements OnClickListener{
         @Override
@@ -124,6 +131,7 @@ public class MainActivity extends Activity implements OnInitListener{
 
 
             switch (v.getId()){
+
 
                 case R.id.user1:
                     login("admin","admin123");
@@ -270,6 +278,46 @@ public class MainActivity extends Activity implements OnInitListener{
             }
         });
     }
+
+    private String sex;//选择的性别
+    private String[] sexArrays = new String[]{"172.17.33.30", "192.168.31.184"};//性别选择
+    public void changeURL(View view){
+        new AlertDialog.Builder(this)
+                .setTitle("请选择URL")
+                .setIcon(R.mipmap.ic_launcher)
+                //第一个参数是单选的字符串数组，第二个是数组的下标设置默认的选择项，-1为默认不选
+                .setSingleChoiceItems(sexArrays, -1, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //选中某个值时赋值给定义的变量
+                        sex = sexArrays[which];
+                    }
+                })
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //点击确定按钮将选择的值通过消息对话框显示出来
+                        String res = "你选择的是" + sex;
+                        app.setURL(sex);
+                        /**
+                         * 消息对话框是Android系统提供的轻量级信息提醒机制，用于向用户提示即时消息，
+                         * Toast对话框显示在应用程序的最上层，显示一段时间后自动消失，不会打断当前操作，也不获得焦点。
+                         * 由于Toast只起到提示作用，因此多用在触发事件的监听中。
+                         */
+                        /**
+                         * 通过makeText方法实例化对象，三个参数，第一个为上下文对象（Context），第二个参数为文本显示内容，
+                         * 第三个参数为Toast显示时长，通过常量控制：Toast.LENGTH_SHORT时间较短；Toast.LENGTH_LONG显示的时间较长
+                         * 最后一定要调用show方法，不然提示消息不会显示
+                         */
+                        Toast.makeText(MainActivity.this,res,Toast.LENGTH_SHORT).show();
+                        sex = "";
+                    }
+                })
+                .show();
+
+    }
+
 
 
     /**
