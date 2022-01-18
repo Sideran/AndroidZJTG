@@ -1,9 +1,11 @@
 package com.example.myapplication.Datatest;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
+import com.example.myapplication.modle.UserInfo;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,6 +22,16 @@ public class Datapp extends Application {
     private List<Article> ReadList;
     private String URL,articleId,Token;
     private HashSet<Long> RecentSet;
+    private UserInfo user;
+    private SharedPreferences sp;
+
+    public UserInfo getUser() {
+        return user;
+    }
+
+    public void setUser(UserInfo user) {
+        this.user = user;
+    }
 
     public HashSet<Long> getRecentSet() {
         return RecentSet;
@@ -99,19 +111,28 @@ public class Datapp extends Application {
         return URL;
     }
 
-    public void setURL(String URL) {
-        this.URL = "http://"+URL+":8081";
+    public void setURL(String url) {
+        this.URL = "http://"+url+":8081";
+        try {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("URL",this.URL);
+            editor.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        sp = getSharedPreferences("ZJTG", MODE_PRIVATE);
         ReadList=new LinkedList<>();
         UnReadList=new LinkedList<>();
         RecentReadList = new LinkedList<>();
         chatMessageList = new LinkedList<>();
         RecentSet= new HashSet<>();
-        URL="http://192.168.31.184:8081";
+        user=new UserInfo();
+        URL=sp.getString("URL","http://172.17.33.30:8081");//"http://172.17.33.30:8081";
         Token="";
         articleId="";
     }

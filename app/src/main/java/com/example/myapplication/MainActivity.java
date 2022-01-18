@@ -5,6 +5,7 @@ package com.example.myapplication;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,8 +39,10 @@ import com.example.myapplication.activity.TabActivity;
 import com.example.myapplication.modle.Article;
 import com.example.myapplication.modle.ChatMessage;
 import com.example.myapplication.modle.LoginBody;
+import com.example.myapplication.modle.UserInfo;
 import com.example.myapplication.util.Util;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -64,11 +67,10 @@ public class MainActivity extends Activity implements OnInitListener{
     private ImageButton user1, user2, user3,settingURL;
 
     private Context context;
-    private EditText username,pwd;
 
     private static final int LoginInfo = 1;
     private Datapp app;
-    private ListViewAdapter adapter;
+    private ProgressDialog progressDialog;
     private List<Article> unRead,Read ;
 
 
@@ -134,6 +136,7 @@ public class MainActivity extends Activity implements OnInitListener{
 
 
                 case R.id.user1:
+
                     login("admin","admin123");
                     break;
 //                case R.id.signin:
@@ -145,9 +148,11 @@ public class MainActivity extends Activity implements OnInitListener{
                     startActivity(intent);
                     break;
                 case R.id.user2:
+
                     login("ry","admin123");
                     break;
                 case R.id.user3:
+
                     login("sideran","admin123");
 
             }
@@ -156,6 +161,7 @@ public class MainActivity extends Activity implements OnInitListener{
     }
 
     private void login(String Username,String password){
+        progressDialog= Util.MaskUtil.showProgressDialog("登陆中，请稍后",MainActivity.this);
         final Intent[] intent = {null};
         LoginBody user =new LoginBody();
         user.setUsername(Username);
@@ -176,6 +182,8 @@ public class MainActivity extends Activity implements OnInitListener{
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                //关闭遮罩层
+                progressDialog.dismiss();
                 Message message = Message.obtain();
                 Log.d(TAG1, "onFailure: " + e.getMessage());
                 Log.e(TAG1, "onFailure: " + e.getMessage());
@@ -193,24 +201,26 @@ public class MainActivity extends Activity implements OnInitListener{
 //                for (int i = 0; i < headers.size(); i++) {
 //                    Log.d(TAG1, headers.name(i) + ":" + headers.value(i));
 //                }
+
                 Message message = Message.obtain();
                 try{
                     JSONObject js= (JSONObject) JSON.parse(text);
 
                     if(js.getInteger("code")==500){
+                        //关闭遮罩层
+                        progressDialog.dismiss();
                         message.obj = "用户名或密码错误";
                         message.what = LoginInfo;
                         handler.sendMessage(message);
                     }else if(js.getInteger("code")==200) {
                         app.setToken(js.getString("token"));
                         Log.d(TAG1,"token:"+js.getString("token"));
-                        getString();
-
-//                        intent[0] =new Intent(MainActivity.this, TabActivity.class);
-//                        startActivity(intent[0]);
+                        getUserInfo();
 
                     }
                     else{
+                        //关闭遮罩层
+                        progressDialog.dismiss();
                         message.obj = "未知错误";
                         message.what = LoginInfo;
                         handler.sendMessage(message);
@@ -218,9 +228,12 @@ public class MainActivity extends Activity implements OnInitListener{
 
                 }catch (Exception e){
                     e.printStackTrace();
+                    //关闭遮罩层
+                    progressDialog.dismiss();
                     message.obj = "未知错误";
                     message.what = LoginInfo;
                     handler.sendMessage(message);
+
                 }
 
             }
@@ -241,8 +254,14 @@ public class MainActivity extends Activity implements OnInitListener{
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                //关闭遮罩层
+                progressDialog.dismiss();
                 Log.d(TAG, "onFailure: "+e.getMessage());
                 Log.e(TAG, "onFailure: "+e.getMessage());
+                Message message = Message.obtain();
+                message.obj = "获取文章失败";
+                message.what = LoginInfo;
+                handler.sendMessage(message);
             }
 
             @Override
@@ -273,8 +292,55 @@ public class MainActivity extends Activity implements OnInitListener{
                     e.printStackTrace();
 
                 }
+                //关闭遮罩层
+                progressDialog.dismiss();
                 intent=new Intent(MainActivity.this, TabActivity.class);
                 startActivity(intent);
+            }
+        });
+    }
+    private void getUserInfo() {
+        String Token=app.getToken();
+        String url = app.getURL()+"/learn/article/userInfo";
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization","Bearer " + Token)
+                .get()//默认就是GET请求，可以不写
+                .build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //关闭遮罩层
+                progressDialog.dismiss();
+                Log.d(TAG, "onFailure: "+e.getMessage());
+                Log.e(TAG, "onFailure: "+e.getMessage());
+                Message message = Message.obtain();
+                message.obj = "获取用户信息失败";
+                message.what = LoginInfo;
+                handler.sendMessage(message);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                String text=response.body().string();
+                Log.e(TAG1, "onResponse: " + text);
+                try {//Util.decrypt(users)
+                    JSONObject js= (JSONObject) JSON.parseObject(text);
+                    JSONObject ja = js.getJSONObject("data");//JSON.parseArray(users,User.class);
+                    UserInfo user =JSON.toJavaObject(ja,UserInfo.class);
+                    app.setUser(user);
+                    getString();
+
+                } catch (Exception e) {
+                    //关闭遮罩层
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+
+                }
+
             }
         });
     }
@@ -283,7 +349,7 @@ public class MainActivity extends Activity implements OnInitListener{
     private String[] sexArrays = new String[]{"172.17.33.30", "192.168.31.184"};//性别选择
     public void changeURL(View view){
         new AlertDialog.Builder(this)
-                .setTitle("请选择URL")
+                .setTitle("请选择服务器地址")
                 .setIcon(R.mipmap.ic_launcher)
                 //第一个参数是单选的字符串数组，第二个是数组的下标设置默认的选择项，-1为默认不选
                 .setSingleChoiceItems(sexArrays, -1, new DialogInterface.OnClickListener() {

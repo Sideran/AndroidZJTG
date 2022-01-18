@@ -1,46 +1,26 @@
 package com.example.myapplication.activity;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Adapter.MyFragmentAdapter;
 import com.example.myapplication.Datatest.Datapp;
 import com.example.myapplication.R;
-import com.example.myapplication.modle.Article;
+import com.example.myapplication.modle.UserInfo;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
-import java.io.IOException;
-import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class TabActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
 
-    private int activeColor = Color.parseColor("#ff678f");
-    private int normalColor = Color.parseColor("#666666");
-
-    private int activeSize = 20;
-    private int normalSize = 14;
     private final String TAG="message";
-    private List<Article> unRead;
-    private List<Article> Read;
     private Datapp app;
+    private UserInfo userInfo;
 
     //private ArrayList<Fragment> fragments;
     private TabLayoutMediator mediator;
@@ -48,9 +28,12 @@ public class TabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
+
 //        getString();
         app=(Datapp) getApplication();
 
+
+        this.setTitle(app.getUser().getDeptName()+" "+app.getUser().getNickName());
         tabLayout = findViewById(R.id.tab_layout);
         viewPager2 = findViewById(R.id.view_pager);
 

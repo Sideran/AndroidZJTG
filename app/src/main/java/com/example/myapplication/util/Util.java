@@ -6,14 +6,8 @@ import android.content.res.AssetManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication.Adapter.ListViewAdapter;
-import com.example.myapplication.Datatest.Datapp;
-import com.example.myapplication.MainActivity;
-import com.example.myapplication.activity.TabActivity;
-import com.example.myapplication.modle.Article;
+import android.app.Activity;
+import android.app.ProgressDialog;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,11 +20,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class Util {
     public static final String ws = "ws://192.168.43.233:8080/webSocket/TOM";//websocket测试地址
@@ -62,41 +51,32 @@ public class Util {
     }
 
 
-    private static void getString(Long userId) {
-        final String TAG="Util";
-        //String url = "https://wwww.baidu.com";
-        String url = "http://192.168.31.185:8081/learn/article/userId?userId="+userId;
-        OkHttpClient okHttpClient = new OkHttpClient();
-        final Request request = new Request.Builder()
-                .url(url)
-                .get()//默认就是GET请求，可以不写
-                .build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: "+e.getMessage());
-                Log.e(TAG, "onFailure: "+e.getMessage());
+
+
+
+    public static class MaskUtil {
+
+        /**
+         * 遮罩层
+         * @param message 遮罩层的文字显示
+         * @param mActivity 使用的activity
+         */
+        public static ProgressDialog showProgressDialog(String message, Activity mActivity) {
+            ProgressDialog mProgressDialog = null;
+            if (mProgressDialog == null) {
+                mProgressDialog = new ProgressDialog(mActivity);
+                mProgressDialog.setCanceledOnTouchOutside(false);
+                mProgressDialog.setCancelable(false);
             }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String text=response.body().string();
-                Log.e(TAG, "onResponse: " + text);
-
-                try {//Util.decrypt(users)
-                    JSONObject js= (JSONObject) JSON.parse(text);
-                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
-                    List<Article> retList=ja.toJavaList(Article.class);
-//                    Log.e(TAG, "onResponse: " +":" + articleTitle);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                }
+            mProgressDialog.setMessage(message);
+            if (!mProgressDialog.isShowing()) {
+                mProgressDialog.show();
             }
-        });
+            return mProgressDialog;
+        }
     }
+
+
 
 
 
