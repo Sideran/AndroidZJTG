@@ -16,7 +16,6 @@ import android.os.Bundle;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -24,25 +23,19 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.example.myapplication.Adapter.ListViewAdapter;
 import com.example.myapplication.Datatest.Datapp;
-import com.example.myapplication.activity.GridViewActivity;
 import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.TabActivity;
 import com.example.myapplication.modle.Article;
-import com.example.myapplication.modle.ChatMessage;
 import com.example.myapplication.modle.LoginBody;
 import com.example.myapplication.modle.UserInfo;
 import com.example.myapplication.util.Util;
-import com.google.android.material.tabs.TabLayout;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -52,7 +45,6 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
