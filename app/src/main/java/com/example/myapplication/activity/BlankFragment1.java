@@ -107,62 +107,13 @@ public class BlankFragment1 extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        getString();
-
+//        getString();
+        UchatMessageList=app.getUnReadList();
+        adapter.notifyDataSetChanged();
 
 
 
     }
-    private void getString() {
-        //String url = "https://wwww.baidu.com";
-        String Token=app.getToken();
-        String url = app.getURL()+"/learn/article/userId?userId=1";
-        OkHttpClient okHttpClient = new OkHttpClient();
-        final Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization","Bearer " + Token)
-                .get()//默认就是GET请求，可以不写
-                .build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: "+e.getMessage());
-                Log.e(TAG, "onFailure: "+e.getMessage());
-            }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Intent intent = null;
-                String text=response.body().string();
-                Log.e(TAG, "onResponse: " + text);
-                unRead=new LinkedList<>();
-                Read=new LinkedList<>();
-                try {//Util.decrypt(users)
-                    JSONObject js= (JSONObject) JSON.parse(text);
-                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
-                    List<Article> retList=ja.toJavaList(Article.class);
-                    for(int i=0;i<retList.size();i++){
-                        if(retList.get(i).getStatus().equals("1")){
-                            Read.add(retList.get(i));
-                        }else if(retList.get(i).getStatus().equals("0")){
-                            unRead.add(retList.get(i));
-                        }
-
-                    }
-                    app.setUnReadList(unRead);
-                    app.setReadList(Read);
-//                    Log.e(TAG, "onResponse: " +":" + articleTitle);
-
-                    UchatMessageList=app.getUnReadList();
-                    adapter.notifyDataSetChanged();
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                }
-
-            }
-        });
-    }
 
 }

@@ -206,6 +206,7 @@ public class MainActivity extends Activity implements OnInitListener{
                         handler.sendMessage(message);
                     }else if(js.getInteger("code")==200) {
                         app.setToken(js.getString("token"));
+                        app.ClearAll();
                         Log.d(TAG1,"token:"+js.getString("token"));
                         getUserInfo();
 
@@ -213,7 +214,7 @@ public class MainActivity extends Activity implements OnInitListener{
                     else{
                         //关闭遮罩层
                         progressDialog.dismiss();
-                        message.obj = "未知错误";
+                        message.obj = "登录发生未知错误";
                         message.what = LoginInfo;
                         handler.sendMessage(message);
                     }
@@ -325,6 +326,7 @@ public class MainActivity extends Activity implements OnInitListener{
                     UserInfo user =JSON.toJavaObject(ja,UserInfo.class);
                     app.setUser(user);
                     getString();
+
 
                 } catch (Exception e) {
                     //关闭遮罩层

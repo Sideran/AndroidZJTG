@@ -20,7 +20,7 @@ public class TabActivity extends AppCompatActivity {
 
     private final String TAG="message";
     private Datapp app;
-    private UserInfo userInfo;
+
 
     //private ArrayList<Fragment> fragments;
     private TabLayoutMediator mediator;
