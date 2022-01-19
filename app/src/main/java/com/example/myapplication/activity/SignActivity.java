@@ -1,5 +1,6 @@
 package com.example.myapplication.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
@@ -17,7 +20,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.example.myapplication.Datatest.Datapp;
+import com.example.myapplication.MainActivity;
+import com.example.myapplication.modle.Article;
 import com.huawei.hms.mlsdk.common.MLFrame;
 import com.huawei.hms.mlsdk.text.MLLocalTextSetting;
 import com.huawei.hms.mlsdk.text.MLText;
@@ -31,6 +39,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import com.example.myapplication.R;
 import com.example.myapplication.util.Util;
@@ -51,7 +60,10 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
     private Canvas canvas;
     private String format;
     private Datapp app;
+    private List<Article> unRead,Read ;
+    private ProgressDialog progressDialog;
     private static final String TAG = "tag";
+    private static final int LoginInfo = 1;
     // 为了不让onItemtSelecter报空指针,所以在这里创建画笔对象
     private Paint paint = new Paint();
     TextView textView;
@@ -163,9 +175,9 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
 //            sendBroadcast(intent);
                 try {
                     upLodeFile();
-                    Intent intent=new Intent(this,TabActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
+//                    Intent intent=new Intent(this,TabActivity.class);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    startActivity(intent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -257,6 +269,8 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
 
     private File file;
     private void upLodeFile() throws IOException {
+        //显示遮罩层
+        progressDialog = Util.MaskUtil.showProgressDialog("正在上传",SignActivity.this);
         file = new File(Environment.getExternalStorageDirectory() + "/1/"+format+".jpg");//获取目录（不加后面的字符串是你的根目录+后面是继续找的意思）
         //getFileLog();
         //ok上传
@@ -288,7 +302,13 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
         call.enqueue(new Callback() {   //异步
             @Override
             public void onFailure(Call call, IOException e) {
+                //关闭遮罩层
+                progressDialog.dismiss();
                 Log.e("tag", "onFailure: "+e.getMessage());
+                Message message = Message.obtain();
+                message.obj = "上传签名失败，请重试";
+                message.what = LoginInfo;
+                handler.sendMessage(message);
             }
 
             @Override
@@ -296,6 +316,18 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
                 String json = response.body().string();
                 Log.d("tag","onResponse:"+json);
                 app.clearRecentSet();
+                try{
+                    getString();
+                }catch (Exception e){
+                    //关闭遮罩层
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+                    Message message = Message.obtain();
+                    message.obj = "未能加载文章";
+                    message.what = LoginInfo;
+                    handler.sendMessage(message);
+                }
+
 //                final UpLoadBean upLoadBean = new Gson().fromJson(json, UpLoadBean.class);
 //                if (!TextUtils.isEmpty(json)){
 //                    int code = upLoadBean.getCode();
@@ -315,5 +347,81 @@ public class  SignActivity extends AppCompatActivity  implements View.OnClickLis
             }
         });
     }
+    private void getString() {
+        //String url = "https://wwww.baidu.com";
+        String Token=app.getToken();
+        String url = app.getURL()+"/learn/article/userId?userId=1";
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization","Bearer " + Token)
+                .get()//默认就是GET请求，可以不写
+                .build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //关闭遮罩层
+                progressDialog.dismiss();
+                Log.d(TAG, "onFailure: "+e.getMessage());
+                Log.e(TAG, "onFailure: "+e.getMessage());
+                Message message = Message.obtain();
+                message.obj = "获取文章失败";
+                message.what = LoginInfo;
+                handler.sendMessage(message);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String text=response.body().string();
+                Log.e(TAG, "onResponse: " + text);
+                unRead=new LinkedList<>();
+                Read=new LinkedList<>();
+                try {//Util.decrypt(users)
+                    JSONObject js= (JSONObject) JSON.parse(text);
+                    JSONArray ja = js.getJSONArray("data");//JSON.parseArray(users,User.class);
+                    List<Article> retList=ja.toJavaList(Article.class);
+                    for(int i=0;i<retList.size();i++){
+                        if(retList.get(i).getStatus().equals("1")){
+                            Read.add(retList.get(i));
+                        }else if(retList.get(i).getStatus().equals("0")){
+                            unRead.add(retList.get(i));
+                        }
+
+                    }
+                    app.setUnReadList(unRead);
+                    app.setReadList(Read);
+//                    Log.e(TAG, "onResponse: " +":" + articleTitle);
+                    //关闭遮罩层
+                    progressDialog.dismiss();
+                    Intent intent=new Intent(SignActivity.this,TabActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    //关闭遮罩层
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+                    Message message = Message.obtain();
+                    message.obj = "返回列表发生未知错误";
+                    message.what = LoginInfo;
+                    handler.sendMessage(message);
+
+                }
+
+
+            }
+        });
+    }
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+
+            if(msg.what == LoginInfo ){
+                String data = (String) msg.obj;
+                Toast.makeText(SignActivity.this,data,Toast.LENGTH_SHORT).show();
+            }
+        };
+
+    };
 }
 

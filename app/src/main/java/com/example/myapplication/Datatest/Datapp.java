@@ -15,7 +15,6 @@ import java.util.List;
 public class Datapp extends Application {
 
 
-    private List<Article> RecentReadList;
     private List<Article> UnReadList;
     private Article msg;
     private List<Article> chatMessageList;
@@ -41,10 +40,7 @@ public class Datapp extends Application {
         RecentSet = recentSet;
     }
 
-    public void clearRecentSet(){
-        HashSet<Long> recset=new HashSet<>();
-        this.setRecentSet(recset);
-    }
+
 
     public String getArticleId() {
         return articleId;
@@ -62,16 +58,24 @@ public class Datapp extends Application {
         Token = token;
     }
 
-    public List<Article> getRecentReadList() {
-        return RecentReadList;
-    }
-
-    public void setRecentReadList(List<Article> recentReadList) {
-        RecentReadList = recentReadList;
-    }
 
     public List<Article> getReadList() {
         return ReadList;
+    }
+
+    public void clearReadList(){
+        this.ReadList.clear();
+    }
+    public void clearUnReadList(){
+        this.UnReadList.clear();
+    }
+    public void clearRecentSet(){
+        this.RecentSet.clear();
+    }
+    public void ClearAll(){
+        clearReadList();
+        clearRecentSet();
+        clearUnReadList();
     }
 
     public void setReadList(List<Article> readList) {
@@ -128,7 +132,7 @@ public class Datapp extends Application {
         sp = getSharedPreferences("ZJTG", MODE_PRIVATE);
         ReadList=new LinkedList<>();
         UnReadList=new LinkedList<>();
-        RecentReadList = new LinkedList<>();
+
         chatMessageList = new LinkedList<>();
         RecentSet= new HashSet<>();
         user=new UserInfo();
