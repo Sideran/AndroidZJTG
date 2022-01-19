@@ -74,7 +74,11 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
         pos=bundle.getInt("position");
         initWight();
 //        chatMessageList= JSON.parseArray(app.getUnReadList(),ChatMessage.class);
-        chatMessageList=app.getUnReadList();
+        if(bundle.getInt("ArticleStatus")==1){
+            chatMessageList=app.getReadList();
+        }else {
+            chatMessageList=app.getUnReadList();
+        }
         title.setText(chatMessageList.get(pos).getArticleTitle());
         article.setText(Util.stripView(chatMessageList.get(pos).getArticleContent()));
         time.setText("发布时间："+formatTime(chatMessageList.get(pos).getStartTime()));
@@ -159,12 +163,13 @@ public class MessageActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.confirm_button:
                 //tts.stop();
-//                chatMessageList.get(pos).setStatus("1");
-//                app.setArticleId(chatMessageList.get(pos).getArticleId().toString());
                 app.addRecentSet(chatMessageList.get(pos).getArticleId());//正式版应该删除
                 if(app.getRecentSet().size()<=0){
                     Toast.makeText(MessageActivity.this,"您未学完任何一篇文章",Toast.LENGTH_SHORT).show();
-                }else{
+                }else if(chatMessageList.get(pos).getStatus().equals("1")){
+                    Toast.makeText(MessageActivity.this,"您已学完本篇文章",Toast.LENGTH_SHORT).show();
+                }
+                else{
                     intent=new Intent(MessageActivity.this, SignActivity.class);
                     startActivity(intent);
                 }

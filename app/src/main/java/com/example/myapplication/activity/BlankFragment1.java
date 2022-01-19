@@ -96,6 +96,7 @@ public class BlankFragment1 extends Fragment {
         listMessage.setOnItemClickListener((parent, view0, position, id) -> {
     //            Toast.makeText(getActivity(),"点击位置"+id,Toast.LENGTH_SHORT).show();
             bundle.putInt("position",position);
+            bundle.putInt("ArticleStatus",0);//0是未读
             Intent intent = new Intent(getActivity(),MessageActivity.class);
             intent.putExtras(bundle);
             startActivity(intent);

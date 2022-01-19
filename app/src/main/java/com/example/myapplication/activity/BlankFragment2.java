@@ -75,7 +75,7 @@ public class BlankFragment2 extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app=(Datapp)getActivity().getApplication();
-        chatMessageList=app.getReadList();//此处获取未读列表测试，应该为已读列表
+        chatMessageList=app.getReadList();//此处获取为已读列表
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -95,6 +95,7 @@ public class BlankFragment2 extends Fragment {
     //            Toast.makeText(getActivity(),"点击位置"+id,Toast.LENGTH_SHORT).show();
 
             bundle.putInt("position",position);
+            bundle.putInt("ArticleStatus",1);//1是已读
             Intent intent = new Intent(getActivity(),MessageActivity.class);
             intent.putExtras(bundle);
             startActivity(intent);
